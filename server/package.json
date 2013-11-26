@@ -13,7 +13,8 @@
   },
   "dependencies": {
     "async": ">=0.2.9",
-    "superagent": ">=0.15.7"
+    "superagent": ">=0.15.7",
+    "mysql": ">=2.0.0-alpha9"
   },
   "engine": "node >= 0.8.14"
 }
