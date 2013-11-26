@@ -1,0 +1,19 @@
+{
+  "name": "datastil",
+  "version": "0.0.1",
+  "description": "Collects stil data",
+  "author": "johvik",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/johvik/datastil.git"
+  },
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "async": ">=0.2.9",
+    "superagent": ">=0.15.7"
+  },
+  "engine": "node >= 0.8.14"
+}
