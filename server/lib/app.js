@@ -1,6 +1,12 @@
 var request = require('superagent');
 var async = require('async');
+var cronJob = require('cron').CronJob;
 var db = require('./db');
+
+// Run every 5 min
+var job = new cronJob('*/5 * * * *', function() {
+  update();
+});
 
 var done = true;
 
@@ -36,9 +42,10 @@ function update() {
       });
     },
     function(err) {
-      console.log('error', err);
+      console.log('Done ' + new Date(), err);
     }
   );
 }
-update();
-// TODO Create server and add cron job
+
+// TODO Create server
+job.start();
