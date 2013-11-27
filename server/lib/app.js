@@ -30,19 +30,17 @@ function update() {
         if (!classes) {
           return callback('Classes not found');
         }
-        var length = classes.length;
-        for (var i = 0; i < length; i++) {
-          db.saveData(classes[i]);
-        }
-        if (length < 20) { // 20 classes/page
-          done = true;
-        }
-        page++;
-        callback(null);
+        async.eachSeries(classes, db.saveData, function(err) {
+          if (classes.length < 20) { // 20 classes/page
+            done = true;
+          }
+          page++;
+          callback(err);
+        });
       });
     },
     function(err) {
-      console.log('Done ' + new Date(), err);
+      console.log('Done ' + new Date(), err, page);
     }
   );
 }
