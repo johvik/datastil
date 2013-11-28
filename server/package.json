@@ -18,5 +18,8 @@
     "cron": ">=1.0.1",
     "express": ">=3.4.4"
   },
+  "devDependencies": {
+    "jshint": ">=2.3.0"
+  },
   "engine": "node >= 0.8.14"
 }
