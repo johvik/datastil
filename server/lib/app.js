@@ -54,11 +54,53 @@ app.use(express.methodOverride());
 app.use(express.logger('dev'));
 app.use(app.router);
 
-// TODO Set up API
-app.get('/', function(req, res) {
-  res.send('test');
+// Set up routes
+app.get('/groups', function(req, res) {
+  db.getGroups(function(err, result) {
+    if (err) {
+      return res.send(500);
+    }
+    res.json(result);
+  });
+});
+app.get('/classes', function(req, res) {
+  var filter = [];
+  if ('filter' in req.query) {
+    // This forces the filter parameter to contain data
+    // 400 will be sent otherwise
+    var split = req.query.filter.split(',');
+    for (var i = 0, j = split.length; i < j; i++) {
+      var num = parseInt(split[i], 10);
+      if (isNaN(num)) {
+        return res.send(400);
+      }
+      filter.push(num);
+    }
+  }
+  db.getClasses(filter, function(err, result) {
+    if (err) {
+      return res.send(500);
+    }
+    res.json(result);
+  });
+});
+app.get('/classes/:id', function(req, res) {
+  var id = parseInt(req.params.id, 10);
+  if (isNaN(id)) {
+    return res.send(400);
+  }
+  db.getClassData(id, function(err, result) {
+    if (err) {
+      return res.send(500);
+    }
+    res.json(result);
+  });
 });
 
-app.listen(9001);
+// Start the server
+app.listen(9001, function() {
+  console.log('Server started ' + new Date());
+});
 
+// Start cron job
 job.start();

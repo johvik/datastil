@@ -46,7 +46,7 @@ exports.saveData = function(data, callback) {
   var bokningsbara = parseInt(data.bokningsbara, 10);
   var waitinglistsize = parseInt(data.waitinglistsize, 10);
   var totalt = parseInt(data.totalt, 10);
-  if (id !== NaN && 'group' in data && groupid !== NaN && startTime !== NaN && endTime !== NaN && 'aktivitet' in data && 'lokal' in data && 'resurs' in data && bokningsbara !== NaN && waitinglistsize !== NaN && totalt !== NaN) {
+  if (!isNaN(id) && 'group' in data && !isNaN(groupid) && !isNaN(startTime) && !isNaN(endTime) && 'aktivitet' in data && 'lokal' in data && 'resurs' in data && !isNaN(bokningsbara) && !isNaN(waitinglistsize) && !isNaN(totalt)) {
     // Update groups
     connection.query('INSERT INTO datastil.groups SET ? ON DUPLICATE KEY UPDATE ' + mysql.escape({
       name: data.group
@@ -92,4 +92,20 @@ exports.saveData = function(data, callback) {
   } else {
     console.log('Fields are missing...');
   }
-}
+};
+
+exports.getGroups = function(callback) {
+  connection.query('SELECT id, name FROM datastil.groups', callback);
+};
+
+exports.getClasses = function(filter, callback) {
+  var query = 'SELECT id, startTime, endTime, bokningsbara, aktivitet, lokal, resurs FROM datastil.classes WHERE startTime >= ' + mysql.escape(new Date().getTime());
+  if (filter.length > 0) {
+    query += ' AND groupid IN (' + mysql.escape(filter) + ')';
+  }
+  connection.query(query, callback);
+};
+
+exports.getClassData = function(id, callback) {
+  connection.query('SELECT time, bokningsbara, waitinglistsize, totalt FROM datastil.class_data WHERE classid = ' + mysql.escape(id), callback);
+};
