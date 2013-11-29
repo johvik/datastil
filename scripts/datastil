@@ -1,0 +1,37 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          datastil
+# Required-Start:    $mysql
+# Required-Stop:     $mysql
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: DataStil server
+# Description:       See https://github.com/johvik/datastil
+### END INIT INFO
+
+PATH=/bin:/usr/bin:/usr/local/bin
+HOME=/root
+APP_DIR=/var/www/datastil
+FOREVER=$APP_DIR/node_modules/.bin/forever
+LOG_DIR=$APP_DIR/logs
+
+case "$1" in
+  start)
+    # Create log dir
+    mkdir -p $LOG_DIR
+    $FOREVER --sourceDir $APP_DIR --minUptime 2000 --spinSleepTime 5000 -a -l $LOG_DIR/forever.log -o $LOG_DIR/out.log -e $LOG_DIR/err.log start index.js
+    ;;
+  stop)
+    $FOREVER --sourceDir $APP_DIR stop index.js
+    ;;
+  restart)
+    $FOREVER --sourceDir $APP_DIR restart index.js
+    ;;
+  status)
+    $FOREVER list
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart|status}"
+    exit 3
+    ;;
+esac
