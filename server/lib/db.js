@@ -108,5 +108,5 @@ exports.getClasses = function(id, filter, callback) {
 };
 
 exports.getClassData = function(id, callback) {
-  connection.query('SELECT time, bokningsbara, waitinglistsize, totalt FROM datastil.class_data WHERE classid = ' + mysql.escape(id), callback);
+  connection.query('SELECT time, bokningsbara, waitinglistsize, totalt FROM datastil.class_data WHERE classid = ' + mysql.escape(id) + ' ORDER BY time ASC', callback);
 };
