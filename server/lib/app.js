@@ -42,6 +42,9 @@ function update() {
       });
     },
     function(err) {
+      if (err) {
+        done = true;
+      }
       console.log('Done ' + new Date(), err, page);
     }
   );
