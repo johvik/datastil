@@ -98,11 +98,12 @@ exports.getGroups = function(callback) {
   connection.query('SELECT id, name FROM datastil.groups', callback);
 };
 
-exports.getClasses = function(filter, callback) {
+exports.getClasses = function(id, filter, callback) {
   var query = 'SELECT id, startTime, endTime, bokningsbara, aktivitet, lokal, resurs FROM datastil.classes WHERE startTime >= ' + mysql.escape(new Date().getTime());
   if (filter.length > 0) {
     query += ' AND groupid IN (' + mysql.escape(filter) + ')';
   }
+  query += ' ORDER BY startTime ASC LIMIT ' + mysql.escape(id * 20) + ',20';
   connection.query(query, callback);
 };
 

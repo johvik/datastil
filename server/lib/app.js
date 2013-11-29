@@ -66,7 +66,11 @@ app.get('/groups', function(req, res) {
     res.json(result);
   });
 });
-app.get('/classes', function(req, res) {
+app.get('/classes/:id', function(req, res) {
+  var id = parseInt(req.params.id, 10);
+  if (isNaN(id) || id < 0) {
+    return res.send(400);
+  }
   var filter = [];
   if ('filter' in req.query) {
     // This forces the filter parameter to contain data
@@ -80,14 +84,14 @@ app.get('/classes', function(req, res) {
       filter.push(num);
     }
   }
-  db.getClasses(filter, function(err, result) {
+  db.getClasses(id, filter, function(err, result) {
     if (err) {
       return res.send(500);
     }
     res.json(result);
   });
 });
-app.get('/classes/:id', function(req, res) {
+app.get('/class/:id', function(req, res) {
   var id = parseInt(req.params.id, 10);
   if (isNaN(id)) {
     return res.send(400);
