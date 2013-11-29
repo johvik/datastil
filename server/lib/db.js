@@ -15,9 +15,10 @@ function initDB() {
         if (err) throw err;
         connection.query('CREATE TABLE IF NOT EXISTS datastil.classes(' +
           'id INT NOT NULL PRIMARY KEY,' +
+          'day INT NOT NULL,' +
+          'time CHAR(5) NOT NULL,' +
           'groupid INT NOT NULL,' +
           'startTime BIGINT NOT NULL,' +
-          'endTime BIGINT NOT NULL,' +
           'bokningsbara INT NOT NULL,' +
           'aktivitet TEXT NOT NULL,' +
           'lokal TEXT NOT NULL,' +
@@ -42,11 +43,16 @@ exports.saveData = function(data, callback) {
   var id = parseInt(data.id, 10);
   var groupid = parseInt(data.groupid, 10);
   var startTime = parseInt(data.startTime, 10);
-  var endTime = parseInt(data.endTime, 10);
   var bokningsbara = parseInt(data.bokningsbara, 10);
   var waitinglistsize = parseInt(data.waitinglistsize, 10);
   var totalt = parseInt(data.totalt, 10);
-  if (!isNaN(id) && 'group' in data && !isNaN(groupid) && !isNaN(startTime) && !isNaN(endTime) && 'aktivitet' in data && 'lokal' in data && 'resurs' in data && !isNaN(bokningsbara) && !isNaN(waitinglistsize) && !isNaN(totalt)) {
+  if (!isNaN(id) && 'group' in data && !isNaN(groupid) && 'startTimeDT' in data && !isNaN(startTime) && 'aktivitet' in data && 'lokal' in data && 'resurs' in data && !isNaN(bokningsbara) && !isNaN(waitinglistsize) && !isNaN(totalt)) {
+    var date = new Date(startTime);
+    var day = date.getDay();
+    // var time = date.getHours() + ':' + date.getMinutes();
+    // startTimeDT has format 2013-11-30T10:00:00
+    var index = data.startTimeDT.indexOf('T');
+    var time = data.startTimeDT.substring(index + 1, index + 6);
     // Update groups
     connection.query('INSERT INTO datastil.groups SET ? ON DUPLICATE KEY UPDATE ' + mysql.escape({
       name: data.group
@@ -58,8 +64,9 @@ exports.saveData = function(data, callback) {
       // Update classes
       connection.query('INSERT INTO datastil.classes SET ? ON DUPLICATE KEY UPDATE ' + mysql.escape({
         groupid: groupid,
+        day: day,
+        time: time,
         startTime: startTime,
-        endTime: endTime,
         bokningsbara: bokningsbara,
         aktivitet: data.aktivitet,
         lokal: data.lokal,
@@ -67,8 +74,9 @@ exports.saveData = function(data, callback) {
       }), {
         id: id,
         groupid: groupid,
+        day: day,
+        time: time,
         startTime: startTime,
-        endTime: endTime,
         bokningsbara: bokningsbara,
         aktivitet: data.aktivitet,
         lokal: data.lokal,
@@ -99,7 +107,7 @@ exports.getGroups = function(callback) {
 };
 
 exports.getClasses = function(id, filter, callback) {
-  var query = 'SELECT id, startTime, endTime, bokningsbara, aktivitet, lokal, resurs FROM datastil.classes WHERE startTime >= ' + mysql.escape(new Date().getTime());
+  var query = 'SELECT id, day, time, startTime, bokningsbara, aktivitet, lokal, resurs FROM datastil.classes WHERE startTime >= ' + mysql.escape(new Date().getTime());
   if (filter.length > 0) {
     query += ' AND groupid IN (' + mysql.escape(filter) + ')';
   }
