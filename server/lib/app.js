@@ -109,6 +109,14 @@ app.get('/class/:id', function(req, res) {
     res.json(result);
   });
 });
+app.get('/scores', function(req, res) {
+  db.getScores(function(err, result) {
+    if (err) {
+      return res.send(500);
+    }
+    res.json(result);
+  });
+});
 
 // Start the server
 app.listen(9001, function() {

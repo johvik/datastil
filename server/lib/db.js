@@ -202,3 +202,7 @@ exports.getClasses = function(id, filter, callback) {
 exports.getClassData = function(id, callback) {
   connection.query('SELECT time, bokningsbara, waitinglistsize, totalt FROM datastil.class_data WHERE classid = ' + mysql.escape(id) + ' ORDER BY time ASC', callback);
 };
+
+exports.getScores = function(callback) {
+  connection.query('SELECT day, time, aktivitet, score, bokningsbara FROM datastil.scores ORDER BY bokningsbara ASC, score ASC', callback);
+};
