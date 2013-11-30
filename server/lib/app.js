@@ -24,9 +24,9 @@ function update() {
       return !done;
     },
     function(callback) {
-      request.get('http://www.mittlivsstil.se/api/classes/' + page + '/').end(function(res) {
-        if (res.error) {
-          return callback(res.error);
+      request.get('http://www.mittlivsstil.se/api/classes/' + page + '/').end(function(err, res) {
+        if (err) {
+          return callback(err);
         }
         var classes = res.body.classes;
         if (!classes) {
