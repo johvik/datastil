@@ -20,9 +20,10 @@ function initDB() {
           'groupid INT NOT NULL,' +
           'startTime BIGINT NOT NULL,' +
           'bokningsbara INT NOT NULL,' +
-          'aktivitet TEXT NOT NULL,' +
+          'aktivitet VARCHAR(50) NOT NULL,' +
           'lokal TEXT NOT NULL,' +
-          'resurs TEXT NOT NULL)', function(err) {
+          'resurs TEXT NOT NULL,' +
+          'score INT NOT NULL)', function(err) {
             if (err) throw err;
             connection.query('CREATE TABLE IF NOT EXISTS datastil.class_data(' +
               'id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,' +
@@ -32,6 +33,15 @@ function initDB() {
               'waitinglistsize INT NOT NULL,' +
               'totalt INT NOT NULL)', function(err) {
                 if (err) throw err;
+                // TODO Can this table be merged together with classes?
+                connection.query('CREATE TABLE IF NOT EXISTS datastil.scores(' +
+                  'day INT NOT NULL,' +
+                  'time CHAR(5) NOT NULL,' +
+                  'aktivitet VARCHAR(50) NOT NULL,' +
+                  'score INT NOT NULL,' +
+                  'PRIMARY KEY (day, time, aktivitet))', function(err) {
+                    if (err) throw err;
+                  });
               });
           });
       });
@@ -53,48 +63,59 @@ exports.saveData = function(data, callback) {
     // startTimeDT has format 2013-11-30T10:00:00
     var index = data.startTimeDT.indexOf('T');
     var time = data.startTimeDT.substring(index + 1, index + 6);
-    // Update groups
-    connection.query('INSERT INTO datastil.groups SET ? ON DUPLICATE KEY UPDATE ' + mysql.escape({
-      name: data.group
-    }), {
-      id: groupid,
-      name: data.group
-    }, function(err, result) {
-      if (err) console.log('Groups', err);
-      // Update classes
-      connection.query('INSERT INTO datastil.classes SET ? ON DUPLICATE KEY UPDATE ' + mysql.escape({
-        groupid: groupid,
-        day: day,
-        time: time,
-        startTime: startTime,
-        bokningsbara: bokningsbara,
-        aktivitet: data.aktivitet,
-        lokal: data.lokal,
-        resurs: data.resurs
+    var aktivitet = data.aktivitet.substring(0, 50); // Max 50 chars
+    // Get score of the class
+    connection.query('SELECT score FROM datastil.scores WHERE day = ' + mysql.escape(day) + ' AND time = ' + mysql.escape(time) + ' AND aktivitet = ' + mysql.escape(aktivitet), function(err, result) {
+      if (err) console.log('Scores', err);
+      var score = 0;
+      if (result && result.length > 0) {
+        score = result.score;
+      }
+      // Update groups
+      connection.query('INSERT INTO datastil.groups SET ? ON DUPLICATE KEY UPDATE ' + mysql.escape({
+        name: data.group
       }), {
-        id: id,
-        groupid: groupid,
-        day: day,
-        time: time,
-        startTime: startTime,
-        bokningsbara: bokningsbara,
-        aktivitet: data.aktivitet,
-        lokal: data.lokal,
-        resurs: data.resurs
+        id: groupid,
+        name: data.group
       }, function(err, result) {
-        if (err) console.log('Classes', err);
-        // Update data
-        connection.query('INSERT INTO datastil.class_data SET ?', {
-            classid: id,
-            time: new Date().getTime(),
-            bokningsbara: bokningsbara,
-            waitinglistsize: waitinglistsize,
-            totalt: totalt
-          },
-          function(err, result) {
-            if (err) console.log('Data', err);
-            callback(err);
-          });
+        if (err) console.log('Groups', err);
+        // Update classes
+        connection.query('INSERT INTO datastil.classes SET ? ON DUPLICATE KEY UPDATE ' + mysql.escape({
+          groupid: groupid,
+          day: day,
+          time: time,
+          startTime: startTime,
+          bokningsbara: bokningsbara,
+          aktivitet: aktivitet,
+          lokal: data.lokal,
+          resurs: data.resurs,
+          score: score
+        }), {
+          id: id,
+          groupid: groupid,
+          day: day,
+          time: time,
+          startTime: startTime,
+          bokningsbara: bokningsbara,
+          aktivitet: aktivitet,
+          lokal: data.lokal,
+          resurs: data.resurs,
+          score: score
+        }, function(err, result) {
+          if (err) console.log('Classes', err);
+          // Update data
+          connection.query('INSERT INTO datastil.class_data SET ?', {
+              classid: id,
+              time: new Date().getTime(),
+              bokningsbara: bokningsbara,
+              waitinglistsize: waitinglistsize,
+              totalt: totalt
+            },
+            function(err, result) {
+              if (err) console.log('Data', err);
+              callback(err);
+            });
+        });
       });
     });
   } else {
