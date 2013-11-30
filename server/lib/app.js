@@ -6,9 +6,15 @@ var app = express();
 var db = require('./db');
 
 // Run every 5 min
-var job = new cronJob('*/5 * * * *', function() {
+var job1 = new cronJob('*/5 * * * *', function() {
   update();
 });
+
+// Run every night at 3:33
+var job2 = new cronJob('33 3 * * *', function() {
+  db.updateScores();
+});
+
 
 var done = true;
 
@@ -109,5 +115,6 @@ app.listen(9001, function() {
   console.log('Server started ' + new Date());
 });
 
-// Start cron job
-job.start();
+// Start cron jobs
+job1.start();
+job2.start();

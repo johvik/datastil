@@ -1,5 +1,6 @@
 var config = require('../config');
 var mysql = require('mysql');
+var async = require('async');
 
 var connection = mysql.createConnection({
   user: config.USER,
@@ -39,6 +40,7 @@ function initDB() {
                   'time CHAR(5) NOT NULL,' +
                   'aktivitet VARCHAR(50) NOT NULL,' +
                   'score INT NOT NULL,' +
+                  'bokningsbara INT NOT NULL,' +
                   'PRIMARY KEY (day, time, aktivitet))', function(err) {
                     if (err) throw err;
                   });
@@ -69,7 +71,7 @@ exports.saveData = function(data, callback) {
       if (err) console.log('Scores', err);
       var score = 0;
       if (result && result.length > 0) {
-        score = result.score;
+        score = result[0].score;
       }
       // Update groups
       connection.query('INSERT INTO datastil.groups SET ? ON DUPLICATE KEY UPDATE ' + mysql.escape({
@@ -123,12 +125,73 @@ exports.saveData = function(data, callback) {
   }
 };
 
+exports.updateScores = function() {
+  connection.query('SELECT id, day, time, aktivitet FROM datastil.classes WHERE startTime < ' + mysql.escape(new Date().getTime()) + ' ORDER BY startTime ASC', function(err, result) {
+    if (err) console.log('UpdateScores1', err);
+    async.eachSeries(result, function(item, callback) {
+      exports.getClassData(item.id, function(err, result) {
+        if (err) {
+          return callback(err);
+        }
+        var length = result.length;
+        if (length > 0) {
+          var last = result[length - 1];
+          var prev = result[0];
+          var score = prev.bokningsbara - prev.waitinglistsize;
+          for (var i = 1; i < length; i++) {
+            var curr = result[i];
+            var dt = (curr.time - prev.time) / 60000; // minutes
+            score += (curr.bokningsbara - curr.waitinglistsize) * dt;
+            prev = curr;
+          }
+          if (last.totalt !== 0) {
+            score = score / last.totalt;
+          }
+          score = Math.round(score);
+
+          // Update score
+          connection.query('INSERT INTO datastil.scores SET ? ON DUPLICATE KEY UPDATE ' + mysql.escape({
+            score: score,
+            bokningsbara: last.bokningsbara
+          }), {
+            day: item.day,
+            time: item.time,
+            aktivitet: item.aktivitet,
+            score: score,
+            bokningsbara: last.bokningsbara
+          }, function(err, result) {
+            if (err) {
+              return callback(err);
+            }
+            // Delete data
+            connection.query('DELETE FROM datastil.classes WHERE ?', {
+              id: item.id
+            }, function(err, result) {
+              if (err) {
+                return callback(err);
+              }
+              connection.query('DELETE FROM datastil.class_data WHERE ?', {
+                classid: item.id
+              }, callback);
+            });
+          });
+        } else {
+          // Do nothing
+          callback(null);
+        }
+      });
+    }, function(err) {
+      console.log('UpdateScores2', err);
+    });
+  });
+};
+
 exports.getGroups = function(callback) {
   connection.query('SELECT id, name FROM datastil.groups', callback);
 };
 
 exports.getClasses = function(id, filter, callback) {
-  var query = 'SELECT id, day, time, startTime, bokningsbara, aktivitet, lokal, resurs FROM datastil.classes WHERE startTime >= ' + mysql.escape(new Date().getTime());
+  var query = 'SELECT id, day, time, startTime, bokningsbara, aktivitet, lokal, resurs, score FROM datastil.classes WHERE startTime >= ' + mysql.escape(new Date().getTime());
   if (filter.length > 0) {
     query += ' AND groupid IN (' + mysql.escape(filter) + ')';
   }
