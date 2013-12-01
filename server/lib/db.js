@@ -24,7 +24,8 @@ function initDB() {
           'aktivitet VARCHAR(50) NOT NULL,' +
           'lokal TEXT NOT NULL,' +
           'resurs TEXT NOT NULL,' +
-          'score INT NOT NULL)', function(err) {
+          'score INT NOT NULL,' +
+          'ny BOOL NOT NULL)', function(err) {
             if (err) throw err;
             connection.query('CREATE TABLE IF NOT EXISTS datastil.class_data(' +
               'id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,' +
@@ -75,8 +76,10 @@ exports.saveData = function(data, callback) {
     connection.query('SELECT score FROM datastil.scores WHERE day = ' + mysql.escape(day) + ' AND time = ' + mysql.escape(time) + ' AND aktivitet = ' + mysql.escape(aktivitet), function(err, result) {
       if (err) console.log('Scores', err);
       var score = 0;
+      var ny = 1;
       if (result && result.length > 0) {
         score = result[0].score;
+        ny = 0;
       }
       // Update groups
       connection.query('INSERT INTO datastil.groups SET ? ON DUPLICATE KEY UPDATE ' + mysql.escape({
@@ -96,7 +99,8 @@ exports.saveData = function(data, callback) {
           aktivitet: aktivitet,
           lokal: data.lokal,
           resurs: data.resurs,
-          score: score
+          score: score,
+          ny: ny
         }), {
           id: id,
           groupid: groupid,
@@ -107,7 +111,8 @@ exports.saveData = function(data, callback) {
           aktivitet: aktivitet,
           lokal: data.lokal,
           resurs: data.resurs,
-          score: score
+          score: score,
+          ny: ny
         }, function(err, result) {
           if (err) console.log('Classes', err);
           // Update data
@@ -198,7 +203,7 @@ exports.getGroups = function(callback) {
 };
 
 exports.getClasses = function(id, filter, callback) {
-  var query = 'SELECT id, day, time, startTime, bokningsbara, aktivitet, lokal, resurs, score FROM datastil.classes WHERE startTime >= ' + mysql.escape(new Date().getTime());
+  var query = 'SELECT id, day, time, startTime, bokningsbara, aktivitet, lokal, resurs, score, ny FROM datastil.classes WHERE startTime >= ' + mysql.escape(new Date().getTime());
   if (filter.length > 0) {
     query += ' AND groupid IN (' + mysql.escape(filter) + ')';
   }
