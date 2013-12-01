@@ -59,6 +59,11 @@ exports.saveData = function(data, callback) {
   var waitinglistsize = parseInt(data.waitinglistsize, 10);
   var totalt = parseInt(data.totalt, 10);
   if (!isNaN(id) && 'group' in data && !isNaN(groupid) && 'startTimeDT' in data && !isNaN(startTime) && 'aktivitet' in data && 'lokal' in data && 'resurs' in data && !isNaN(bokningsbara) && !isNaN(waitinglistsize) && !isNaN(totalt)) {
+    var currentTime = new Date().getTime();
+    // Make sure it hasn't occured yet
+    if (startTime < currentTime) {
+      return callback(null);
+    }
     var date = new Date(startTime);
     var day = date.getDay();
     // var time = date.getHours() + ':' + date.getMinutes();
@@ -108,7 +113,7 @@ exports.saveData = function(data, callback) {
           // Update data
           connection.query('INSERT INTO datastil.class_data SET ?', {
               classid: id,
-              time: new Date().getTime(),
+              time: currentTime,
               bokningsbara: bokningsbara,
               waitinglistsize: waitinglistsize,
               totalt: totalt
