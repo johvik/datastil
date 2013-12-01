@@ -131,7 +131,9 @@ exports.saveData = function(data, callback) {
 };
 
 exports.updateScores = function() {
-  connection.query('SELECT id, day, time, aktivitet FROM datastil.classes WHERE startTime < ' + mysql.escape(new Date().getTime()) + ' ORDER BY startTime ASC', function(err, result) {
+  // Add 10 min margin
+  var currentTime = new Date().getTime() - 600000;
+  connection.query('SELECT id, day, time, aktivitet FROM datastil.classes WHERE startTime < ' + mysql.escape(currentTime) + ' ORDER BY startTime ASC', function(err, result) {
     if (err) console.log('UpdateScores1', err);
     async.eachSeries(result, function(item, callback) {
       exports.getClassData(item.id, function(err, result) {
