@@ -60,7 +60,7 @@ function update() {
 app.use(express.compress());
 app.use(express.bodyParser());
 app.use(express.methodOverride());
-app.use(express.logger('dev'));
+app.use(express.logger('short'));
 app.use(app.router);
 
 // Set up routes
