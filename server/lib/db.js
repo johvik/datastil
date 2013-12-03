@@ -115,7 +115,11 @@ exports.saveData = function(data, callback) {
           ny: ny
         }, function(err, result) {
           if (err) console.log('Classes', err);
-          // Update data
+          // Do not store data if it is more than 10 days left
+          if ((startTime - currentTime) > 86400000 * 10) {
+            return callback(null);
+          }
+          // Add data
           connection.query('INSERT INTO datastil.class_data SET ?', {
               classid: id,
               time: currentTime,
