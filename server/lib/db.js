@@ -168,7 +168,7 @@ exports.updateScores = function() {
           // Update score
           connection.query('INSERT INTO datastil.scores SET ? ON DUPLICATE KEY UPDATE ' + mysql.escape({
             score: score,
-            bokningsbara: last.bokningsbara
+            bokningsbara: (last.bokningsbara - last.waitinglistsize)
           }), {
             day: item.day,
             time: item.time,
