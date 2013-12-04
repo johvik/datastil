@@ -19,13 +19,13 @@ case "$1" in
   start)
     # Create log dir
     mkdir -p $LOG_DIR
-    $FOREVER --sourceDir $APP_DIR --minUptime 2000 --spinSleepTime 5000 -a -l $LOG_DIR/forever.log -o $LOG_DIR/out.log -e $LOG_DIR/err.log start index.js
+    $FOREVER --minUptime 2000 --spinSleepTime 5000 -a -l $LOG_DIR/forever.log -o $LOG_DIR/out.log -e $LOG_DIR/err.log start $APP_DIR/index.js
     ;;
   stop)
-    $FOREVER --sourceDir $APP_DIR stop index.js
+    $FOREVER stop $APP_DIR/index.js
     ;;
   restart)
-    $FOREVER --sourceDir $APP_DIR restart index.js
+    $FOREVER restart $APP_DIR/index.js
     ;;
   status)
     $FOREVER list
