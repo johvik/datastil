@@ -135,7 +135,7 @@ exports.saveData = function(data, callback) {
       });
     });
   } else {
-    console.log('Fields are missing...');
+    callback('Fields are missing...');
   }
 };
 
