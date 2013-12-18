@@ -20,8 +20,10 @@ var done = true;
 
 function update() {
   if (!done) {
-    console.log('Update already running...');
+    console.log('Update already running... ' + new Date());
     return; // Let old update finish
+  } else {
+    console.log('Starting update ' + new Date());
   }
   done = false;
   var page = 0;
@@ -48,9 +50,8 @@ function update() {
       });
     },
     function(err) {
-      if (err) {
-        done = true;
-      }
+      // Always set true just to be sure
+      done = true;
       console.log('Done ' + new Date(), err, page);
     }
   );
