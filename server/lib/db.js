@@ -35,7 +35,8 @@ function initDB() {
                 'time BIGINT NOT NULL,' +
                 'bokningsbara INT NOT NULL,' +
                 'waitinglistsize INT NOT NULL,' +
-                'totalt INT NOT NULL)', function(err) {
+                'totalt INT NOT NULL,' +
+                'INDEX(classid))', function(err) {
                   if (err) throw err;
                   // TODO Can this table be merged together with classes?
                   connection.query('CREATE TABLE IF NOT EXISTS datastil.scores(' +
