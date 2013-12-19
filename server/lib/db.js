@@ -234,7 +234,8 @@ exports.getGroups = function(callback) {
 };
 
 exports.getClasses = function(id, filter, callback) {
-  var query = 'SELECT id, day, time, startTime, bokningsbara, aktivitet, lokal, resurs, score, ny FROM datastil.classes a WHERE startTime >= ' + mysql.escape(new Date().getTime()) + ' AND 0 != (SELECT COUNT(*) FROM datastil.class_data WHERE classid = a.id)';
+  var currentTime = new Date().getTime();
+  var query = 'SELECT id, day, time, startTime, bokningsbara, aktivitet, lokal, resurs, score, ny FROM datastil.classes a WHERE startTime >= ' + mysql.escape(currentTime) + ' AND EXISTS(SELECT * FROM datastil.class_data WHERE classid = a.id)';
   if (filter.length > 0) {
     query += ' AND groupid IN (' + mysql.escape(filter) + ')';
   }
