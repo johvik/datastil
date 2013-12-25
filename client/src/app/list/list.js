@@ -1,4 +1,4 @@
-angular.module('list', ['services.classes', 'infinite-scroll'], ['$routeProvider',
+angular.module('list', ['services.classes', 'directives.group-filter', 'filters.not-in-array', 'infinite-scroll'], ['$routeProvider',
   function($routeProvider) {
     $routeProvider.when('/', {
       templateUrl: 'list/list.tpl.html',

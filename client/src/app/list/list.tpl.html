@@ -1,4 +1,5 @@
 <h3>List</h3>
+<group-filter filter-var="hiddenGroups"></group-filter>
 <table class="table table-hover" infinite-scroll="classes.nextPage()" infinite-scroll-disabled="!classes.hasNext || classes.pageLoading" infinite-scroll-distance="1">
   <thead>
     <tr>
@@ -10,7 +11,7 @@
     </tr>
   </thead>
   <tbody>
-    <tr ng-repeat="class in classes.data">
+    <tr ng-repeat="class in classes.data | notInArray:hiddenGroups:'groupid'">
       <td>{{class.aktivitet}}</td>
       <td>{{class.resurs}}</td>
       <td>{{class.time}}</td>
