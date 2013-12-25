@@ -7,7 +7,7 @@ mod.directive('infiniteScroll', [
   '$rootScope', '$window', '$timeout', function($rootScope, $window, $timeout) {
     return {
       link: function(scope, elem, attrs) {
-        var checkWhenEnabled, handler, scrollDistance, scrollEnabled;
+        var handler, scrollDistance, scrollEnabled, shouldItScroll;
         $window = angular.element($window);
         scrollDistance = 0;
         if (attrs.infiniteScrollDistance != null) {
@@ -15,31 +15,29 @@ mod.directive('infiniteScroll', [
             return scrollDistance = parseInt(value, 10);
           });
         }
+        shouldItScroll = function() {
+          var elementBottom, remaining, windowBottom;
+          windowBottom = $window.height() + $window.scrollTop();
+          elementBottom = elem.offset().top + elem.height();
+          remaining = elementBottom - windowBottom;
+          return remaining <= $window.height() * scrollDistance;
+        };
         scrollEnabled = true;
-        checkWhenEnabled = false;
         if (attrs.infiniteScrollDisabled != null) {
           scope.$watch(attrs.infiniteScrollDisabled, function(value) {
             scrollEnabled = !value;
-            if (scrollEnabled && checkWhenEnabled) {
-              checkWhenEnabled = false;
+            if (scrollEnabled && shouldItScroll()) {
               return handler();
             }
           });
         }
         handler = function() {
-          var elementBottom, remaining, shouldScroll, windowBottom;
-          windowBottom = $window.height() + $window.scrollTop();
-          elementBottom = elem.offset().top + elem.height();
-          remaining = elementBottom - windowBottom;
-          shouldScroll = remaining <= $window.height() * scrollDistance;
-          if (shouldScroll && scrollEnabled) {
+          if (shouldItScroll() && scrollEnabled) {
             if ($rootScope.$$phase) {
               return scope.$eval(attrs.infiniteScroll);
             } else {
               return scope.$apply(attrs.infiniteScroll);
             }
-          } else if (shouldScroll) {
-            return checkWhenEnabled = true;
           }
         };
         $window.on('scroll', handler);
