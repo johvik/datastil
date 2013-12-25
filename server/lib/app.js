@@ -59,10 +59,14 @@ function update() {
 }
 
 var dist = path.join(__dirname, '..', '..', 'client', 'dist');
+var maxAge = 3600000; // 1h
+
 // Set up middleware
 app.use(express.compress());
 app.use(express.favicon(path.join(dist, 'favicon.ico')));
-app.use('/static', express.static(dist));
+app.use('/static', express.static(dist, {
+  maxAge: maxAge
+}));
 app.use('/static', function(req, res, next) {
   res.send(404); // If we get here then the request for a static file is invalid
 });
@@ -128,6 +132,7 @@ app.get('/scores', function(req, res) {
 app.all('/*', function(req, res) {
   // Just send the index.html for other files to support HTML5Mode
   res.sendfile('index.html', {
+    maxAge: maxAge,
     root: dist
   });
 });
