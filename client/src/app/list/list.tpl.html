@@ -11,16 +11,17 @@
     </tr>
   </thead>
   <tbody>
-    <tr ng-repeat="class in classes.data | notInArray:hiddenGroups:'groupid'">
+    <tr ng-repeat="class in classesFiltered = (classes.data | notInArray:hiddenGroups:'groupid')">
       <td>{{class.aktivitet}}</td>
       <td>{{class.resurs}}</td>
       <td>{{class.time}}</td>
       <td>{{class.startTime | date:'EEEE, MMM d'}}</td>
       <td>{{class.bokningsbara}}</td>
     </tr>
-    <tr ng-show="!classes.data.length">
+    <tr ng-show="!classesFiltered.data.length">
       <td colspan="5">Nothing in the list =(</td>
     </tr>
   </tbody>
 </table>
 <div ng-show="classes.pageLoading">Loading data...</div>
+
