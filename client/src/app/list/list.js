@@ -10,5 +10,6 @@ angular.module('list', ['services.classes', 'directives.group-filter', 'filters.
 angular.module('list').controller('ListCtrl', ['$scope', 'classes',
   function($scope, classes) {
     $scope.classes = classes;
+    $scope.$watchCollection('hiddenGroups', classes.nextPage);
   }
 ]);
