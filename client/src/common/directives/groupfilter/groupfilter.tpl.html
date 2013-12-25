@@ -1,8 +1,8 @@
 <form class="form-inline">
-  <label>Filter: </label>
+  <label>Filter:</label>
   <div class="checkbox" ng-repeat="group in groups">
     <label>
-      <input type="checkbox" value="{{group.id}}" ng-checked="filterVar.indexOf(group.id) === -1" ng-click="groupFilterChange(group.id)"> {{group.name}}&nbsp;
+      <input type="checkbox" value="{{group.id}}" ng-checked="filterVar.indexOf(group.id) === -1" ng-click="groupFilterChange(group.id)">{{group.name}}&nbsp;
     </label>
   </div>
 </form>

@@ -14,7 +14,7 @@ angular.module('directives.group-filter', ['services.groups'])
       link: function($scope, $element, $attrs) {
         $scope.groups = groups;
         $scope.filterVar = [];
-        
+
         $scope.groupFilterChange = function(groupid) {
           var index = $scope.filterVar.indexOf(groupid);
           if (index >= 0) {

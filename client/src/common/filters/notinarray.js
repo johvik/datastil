@@ -2,7 +2,7 @@ angular.module('filters.not-in-array', [])
 
 .filter('notInArray', function() {
   return function(items, array, field) {
-    if(!array) {
+    if (!array) {
       return items;
     }
     var filtered = [];
