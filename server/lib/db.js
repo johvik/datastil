@@ -235,7 +235,7 @@ exports.getGroups = function(callback) {
 
 exports.getClasses = function(id, filter, callback) {
   var currentTime = new Date().getTime();
-  var query = 'SELECT id, day, time, startTime, bokningsbara, aktivitet, lokal, resurs, score, ny FROM datastil.classes WHERE startTime >= ' + mysql.escape(currentTime);
+  var query = 'SELECT id, day, time, groupid, startTime, bokningsbara, aktivitet, lokal, resurs, score, ny FROM datastil.classes WHERE startTime >= ' + mysql.escape(currentTime);
   if (filter.length > 0) {
     query += ' AND groupid IN (' + mysql.escape(filter) + ')';
   }
