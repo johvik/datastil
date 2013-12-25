@@ -12,11 +12,11 @@ angular.module('services.classes').factory('classes', ['$resource',
     classesService.nextPage = function() {
       if (classesService.hasNext && !classesService.pageLoading) {
         classesService.pageLoading = true;
-  
+
         // Get next page
         $resource('/classes/' + page++).query(function(res) {
           classesService.data = classesService.data.concat(res);
-  
+
           classesService.pageLoading = false;
           if (res.length < 20) {
             // 20 elements per page
