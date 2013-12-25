@@ -2,6 +2,7 @@ var request = require('superagent');
 var async = require('async');
 var cronJob = require('cron').CronJob;
 var express = require('express');
+var path = require('path');
 var app = express();
 var db = require('./db');
 
@@ -57,8 +58,14 @@ function update() {
   );
 }
 
+var dist = path.join(__dirname, '..', '..', 'client', 'dist');
 // Set up middleware
 app.use(express.compress());
+app.use(express.favicon(path.join(dist, 'favicon.ico')));
+app.use('/static', express.static(dist));
+app.use('/static', function(req, res, next) {
+  res.send(404); // If we get here then the request for a static file is invalid
+});
 app.use(express.bodyParser());
 app.use(express.methodOverride());
 app.use(express.logger('short'));
@@ -116,6 +123,12 @@ app.get('/scores', function(req, res) {
       return res.send(500);
     }
     res.json(result);
+  });
+});
+app.all('/*', function(req, res) {
+  // Just send the index.html for other files to support HTML5Mode
+  res.sendfile('index.html', {
+    root: dist
   });
 });
 

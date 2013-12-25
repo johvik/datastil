@@ -1,5 +1,4 @@
-module.exports = function (grunt) {
-
+module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-uglify');
@@ -11,9 +10,9 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-html2js');
 
   // Default task.
-  grunt.registerTask('default', ['jshint','build','karma:unit']);
-  grunt.registerTask('build', ['clean','html2js','concat','recess:build','copy:assets']);
-  grunt.registerTask('release', ['clean','html2js','uglify','jshint','karma:unit','concat:index', 'recess:min','copy:assets']);
+  grunt.registerTask('default', ['jshint', 'build', 'karma:unit']);
+  grunt.registerTask('build', ['clean', 'html2js', 'concat', 'recess:build', 'copy:assets']);
+  grunt.registerTask('release', ['clean', 'html2js', 'uglify', 'jshint', 'concat:index', 'recess:min', 'copy:assets', 'karma:unit']);
   grunt.registerTask('test-watch', ['karma:watch']);
 
   // Print a timestamp (useful for when watching)
@@ -22,8 +21,14 @@ module.exports = function (grunt) {
   });
 
   var karmaConfig = function(configFile, customOptions) {
-    var options = { configFile: configFile, keepalive: true };
-    var travisOptions = process.env.TRAVIS && { browsers: ['Firefox'], reporters: 'dots' };
+    var options = {
+      configFile: configFile,
+      keepalive: true
+    };
+    var travisOptions = process.env.TRAVIS && {
+      browsers: ['Firefox'],
+      reporters: 'dots'
+    };
     return grunt.util._.extend(options, customOptions, travisOptions);
   };
 
@@ -31,11 +36,10 @@ module.exports = function (grunt) {
   grunt.initConfig({
     distdir: 'dist',
     pkg: grunt.file.readJSON('package.json'),
-    banner:
-    '/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>\n' +
-    '<%= pkg.homepage ? " * " + pkg.homepage + "\\n" : "" %>' +
-    ' * Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author %>;\n' +
-    ' * Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %>\n */\n',
+    banner: '/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>\n' +
+      '<%= pkg.homepage ? " * " + pkg.homepage + "\\n" : "" %>' +
+      ' * Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author %>;\n' +
+      ' * Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %>\n */\n',
     src: {
       js: ['src/**/*.js'],
       jsTpl: ['<%= distdir %>/templates/**/*.js'],
@@ -52,12 +56,24 @@ module.exports = function (grunt) {
     clean: ['<%= distdir %>/*'],
     copy: {
       assets: {
-        files: [{ dest: '<%= distdir %>', src : '**', expand: true, cwd: 'src/assets/' }]
+        files: [{
+          dest: '<%= distdir %>',
+          src: '**',
+          expand: true,
+          cwd: 'src/assets/'
+        }]
       }
     },
     karma: {
-      unit: { options: karmaConfig('test/config/unit.js') },
-      watch: { options: karmaConfig('test/config/unit.js', { singleRun:false, autoWatch: true}) }
+      unit: {
+        options: karmaConfig('test/config/unit.js')
+      },
+      watch: {
+        options: karmaConfig('test/config/unit.js', {
+          singleRun: false,
+          autoWatch: true
+        })
+      }
     },
     html2js: {
       app: {
@@ -77,13 +93,13 @@ module.exports = function (grunt) {
         module: 'templates.common'
       }
     },
-    concat:{
-      dist:{
+    concat: {
+      dist: {
         options: {
           banner: "<%= banner %>"
         },
-        src:['<%= src.js %>', '<%= src.jsTpl %>'],
-        dest:'<%= distdir %>/<%= pkg.name %>.js'
+        src: ['<%= src.js %>', '<%= src.jsTpl %>'],
+        dest: '<%= distdir %>/<%= pkg.name %>.js'
       },
       index: {
         src: ['src/index.html'],
@@ -93,36 +109,36 @@ module.exports = function (grunt) {
         }
       },
       angular: {
-        src:['vendor/angular/angular.js', 'vendor/angular/angular-resource.js', 'vendor/angular/angular-route.js', 'vendor/angular/ng-infinite-scroll.js'],
+        src: ['vendor/angular/angular.js', 'vendor/angular/angular-resource.js', 'vendor/angular/angular-route.js', 'vendor/angular/ng-infinite-scroll.js'],
         dest: '<%= distdir %>/angular.js'
       },
       bootstrap: {
-        src:['vendor/bootstrap/*.js'],
+        src: ['vendor/bootstrap/*.js'],
         dest: '<%= distdir %>/bootstrap.js'
       },
       jquery: {
-        src:['vendor/jquery/*.js'],
+        src: ['vendor/jquery/*.js'],
         dest: '<%= distdir %>/jquery.js'
       }
     },
     uglify: {
-      dist:{
+      dist: {
         options: {
           banner: "<%= banner %>"
         },
-        src:['<%= src.js %>' ,'<%= src.jsTpl %>'],
-        dest:'<%= distdir %>/<%= pkg.name %>.js'
+        src: ['<%= src.js %>', '<%= src.jsTpl %>'],
+        dest: '<%= distdir %>/<%= pkg.name %>.js'
       },
       angular: {
-        src:['<%= concat.angular.src %>'],
+        src: ['<%= concat.angular.src %>'],
         dest: '<%= distdir %>/angular.js'
       },
       bootstrap: {
-        src:['<%= concat.bootstrap.src %>'],
+        src: ['<%= concat.bootstrap.src %>'],
         dest: '<%= distdir %>/bootstrap.js'
       },
       jquery: {
-        src:['vendor/jquery/*.js'],
+        src: ['vendor/jquery/*.js'],
         dest: '<%= distdir %>/jquery.js'
       }
     },
@@ -144,31 +160,30 @@ module.exports = function (grunt) {
         }
       }
     },
-    watch:{
+    watch: {
       all: {
-        files:['<%= src.js %>', '<%= src.specs %>', '<%= src.cssWatch %>', '<%= src.tpl.app %>', '<%= src.tpl.common %>', '<%= src.html %>'],
-        tasks:['default','timestamp']
+        files: ['<%= src.js %>', '<%= src.specs %>', '<%= src.cssWatch %>', '<%= src.tpl.app %>', '<%= src.tpl.common %>', '<%= src.html %>'],
+        tasks: ['default', 'timestamp']
       },
       build: {
-        files:['<%= src.js %>', '<%= src.specs %>', '<%= src.cssWatch %>', '<%= src.tpl.app %>', '<%= src.tpl.common %>', '<%= src.html %>'],
-        tasks:['build','timestamp']
+        files: ['<%= src.js %>', '<%= src.specs %>', '<%= src.cssWatch %>', '<%= src.tpl.app %>', '<%= src.tpl.common %>', '<%= src.html %>'],
+        tasks: ['build', 'timestamp']
       }
     },
-    jshint:{
-      files:['gruntFile.js', '<%= src.js %>', '<%= src.jsTpl %>', '<%= src.specs %>', '<%= src.scenarios %>'],
-      options:{
-        curly:true,
-        eqeqeq:true,
-        immed:true,
-        latedef:true,
-        newcap:true,
-        noarg:true,
-        sub:true,
-        boss:true,
-        eqnull:true,
-        globals:{}
+    jshint: {
+      files: ['gruntFile.js', '<%= src.js %>', '<%= src.jsTpl %>', '<%= src.specs %>', '<%= src.scenarios %>'],
+      options: {
+        curly: true,
+        eqeqeq: true,
+        immed: true,
+        latedef: true,
+        newcap: true,
+        noarg: true,
+        sub: true,
+        boss: true,
+        eqnull: true,
+        globals: {}
       }
     }
   });
-
 };

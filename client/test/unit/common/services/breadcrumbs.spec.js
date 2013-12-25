@@ -1,8 +1,8 @@
-describe('breadcrumbs', function () {
+describe('breadcrumbs', function() {
 
-  var LocationMock = function (initialPath) {
+  var LocationMock = function(initialPath) {
     var pathStr = initialPath || '';
-    this.path = function (pathArg) {
+    this.path = function(pathArg) {
       return pathArg ? pathStr = pathArg : pathStr;
     };
   };
@@ -22,20 +22,26 @@ describe('breadcrumbs', function () {
     expect(breadcrumbs.getFirst()).toEqual({});
   });
 
-  it('should not expose breadcrumbs before route change success', function () {
+  it('should not expose breadcrumbs before route change success', function() {
     $location.path('/some/path');
     expect(breadcrumbs.getAll()).toEqual([]);
     expect(breadcrumbs.getFirst()).toEqual({});
   });
 
-  it('should correctly parse $location() after route change success', function () {
+  it('should correctly parse $location() after route change success', function() {
     $location.path('/some/path');
     $rootScope.$broadcast('$routeChangeSuccess', {});
-    expect(breadcrumbs.getAll()).toEqual([
-      { name:'some', path:'/some' },
-      { name:'path', path:'/some/path' }
-    ]);
-    expect(breadcrumbs.getFirst()).toEqual({name:'some', path:'/some'});
+    expect(breadcrumbs.getAll()).toEqual([{
+      name: 'some',
+      path: '/some'
+    }, {
+      name: 'path',
+      path: '/some/path'
+    }]);
+    expect(breadcrumbs.getFirst()).toEqual({
+      name: 'some',
+      path: '/some'
+    });
   });
 
 });
