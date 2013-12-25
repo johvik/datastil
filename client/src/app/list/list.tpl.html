@@ -17,6 +17,9 @@
       <td>{{class.startTime | date:'EEEE, MMM d'}}</td>
       <td>{{class.bokningsbara}}</td>
     </tr>
+    <tr ng-show="!classes.data.length">
+      <td colspan="5">Nothing in the list =(</td>
+    </tr>
   </tbody>
 </table>
 <div ng-show="classes.pageLoading">Loading data...</div>
