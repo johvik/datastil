@@ -1,14 +1,14 @@
 angular.module('list', ['services.classes', 'directives.group-filter', 'filters.not-in-array', 'infinite-scroll'], ['$routeProvider',
   function($routeProvider) {
-    $routeProvider.when('/', {
+    $routeProvider.when('/list', {
       templateUrl: 'list/list.tpl.html',
       controller: 'ListCtrl'
     });
   }
 ]);
 
-angular.module('list').controller('ListCtrl', ['$scope', 'classes',
-  function($scope, classes) {
+angular.module('list').controller('ListCtrl', ['$scope', '$location', 'classes',
+  function($scope, $location, classes) {
     $scope.classes = classes;
     // Read stored values
     $scope.hiddenGroups = JSON.parse(localStorage.getItem('hiddenGroups') || '[]');
@@ -18,5 +18,9 @@ angular.module('list').controller('ListCtrl', ['$scope', 'classes',
       // Get next page to make sure it gets triggered
       classes.nextPage();
     });
+
+    $scope.classInfo = function(c) {
+      $location.path('/list/' + c.id);
+    };
   }
 ]);
