@@ -1,26 +1,26 @@
 <h3>List</h3>
 <group-filter filter-var="hiddenGroups"></group-filter>
-<table class="table table-hover" infinite-scroll="classes.nextPage()" infinite-scroll-disabled="!classes.hasNext || classes.pageLoading" infinite-scroll-distance="1">
-  <thead>
-    <tr>
-      <th>Activity</th>
-      <th>Resource</th>
-      <th>Time</th>
-      <th>Day</th>
-      <th>Available</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr ng-repeat="class in classesFiltered = (classes.data | notInArray:hiddenGroups:'groupid')">
-      <td>{{class.aktivitet}}</td>
-      <td>{{class.resurs}}</td>
-      <td>{{class.time}}</td>
-      <td>{{class.startTime | date:'EEEE, MMM d'}}</td>
-      <td>{{class.bokningsbara}}</td>
-    </tr>
-    <tr ng-show="!classesFiltered.length">
-      <td colspan="5">Nothing in the list =(</td>
-    </tr>
-  </tbody>
-</table>
+<div class="table-responsive">
+  <table class="table table-hover" infinite-scroll="classes.nextPage()" infinite-scroll-disabled="!classes.hasNext || classes.pageLoading" infinite-scroll-distance="1">
+    <thead>
+      <tr>
+        <th class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Activity</th>
+        <th class="col-xs-3 col-sm-3 col-md-3 col-lg-3">Resource</th>
+        <th class="col-xs-3 col-sm-3 col-md-3 col-lg-3">Time</th>
+        <th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Available</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="class in classesFiltered = (classes.data | notInArray:hiddenGroups:'groupid')">
+        <td>{{class.aktivitet}}</td>
+        <td>{{class.resurs}}</td>
+        <td>{{class.startTime | date:'HH:mm, EEEE, MMM d'}}</td>
+        <td>{{class.bokningsbara}}</td>
+      </tr>
+      <tr ng-show="!classesFiltered.length">
+        <td colspan="5">Nothing in the list =(</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 <div ng-show="classes.pageLoading">Loading data...</div>
