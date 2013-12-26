@@ -9,8 +9,7 @@
   },
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "grunt test-travis"
+    "start": "node index.js"
   },
   "dependencies": {
     "async": ">=0.2.9",
