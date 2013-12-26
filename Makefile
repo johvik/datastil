@@ -1,11 +1,9 @@
-all: test
+all:
+	@cd client && grunt
+	@cd server && grunt
 
-test-travis:
+travis:
 	@echo "exports.USER = 'travis';\nexports.PASSWORD = '';" > server/config.js
-	@$(MAKE) -s test
+	@cd client && grunt release
+	@cd server && grunt
 
-test:
-	@$(MAKE) -s lint
-
-lint:
-	@./node_modules/.bin/jshint ./server/lib ./index.js

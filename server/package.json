@@ -10,7 +10,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "make test-travis"
+    "test": "grunt test-travis"
   },
   "dependencies": {
     "async": ">=0.2.9",
@@ -21,7 +21,8 @@
     "forever": ">=0.10.9"
   },
   "devDependencies": {
-    "jshint": ">=2.3.0"
+    "grunt": ">=0.4.2",
+    "grunt-contrib-jshint": ">=0.8.0"
   },
   "engine": "node >= 0.10.22"
 }

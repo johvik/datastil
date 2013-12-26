@@ -9,13 +9,19 @@ var pool = mysql.createPool({
 
 function initDB() {
   pool.getConnection(function(err, connection) {
-    if (err) throw err;
+    if (err) {
+      throw err;
+    }
     connection.query('CREATE DATABASE IF NOT EXISTS datastil', function(err) {
-      if (err) throw err;
+      if (err) {
+        throw err;
+      }
       connection.query('CREATE TABLE IF NOT EXISTS datastil.groups(' +
         'id INT NOT NULL PRIMARY KEY,' +
         'name TEXT NOT NULL)', function(err) {
-          if (err) throw err;
+          if (err) {
+            throw err;
+          }
           connection.query('CREATE TABLE IF NOT EXISTS datastil.classes(' +
             'id INT NOT NULL PRIMARY KEY,' +
             'day INT NOT NULL,' +
@@ -28,7 +34,9 @@ function initDB() {
             'resurs TEXT NOT NULL,' +
             'score INT NOT NULL,' +
             'ny BOOL NOT NULL)', function(err) {
-              if (err) throw err;
+              if (err) {
+                throw err;
+              }
               connection.query('CREATE TABLE IF NOT EXISTS datastil.class_data(' +
                 'id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,' +
                 'classid INT NOT NULL,' +
@@ -37,7 +45,9 @@ function initDB() {
                 'waitinglistsize INT NOT NULL,' +
                 'totalt INT NOT NULL,' +
                 'INDEX(classid))', function(err) {
-                  if (err) throw err;
+                  if (err) {
+                    throw err;
+                  }
                   // TODO Can this table be merged together with classes?
                   connection.query('CREATE TABLE IF NOT EXISTS datastil.scores(' +
                     'day INT NOT NULL,' +
@@ -46,7 +56,9 @@ function initDB() {
                     'score INT NOT NULL,' +
                     'bokningsbara INT NOT NULL,' +
                     'PRIMARY KEY (day, time, aktivitet))', function(err) {
-                      if (err) throw err;
+                      if (err) {
+                        throw err;
+                      }
                       // Nothing went wrong release connection
                       connection.release();
                     });
@@ -90,7 +102,9 @@ exports.saveData = function(data, callback) {
       }
       // Get score of the class
       connection.query('SELECT score FROM datastil.scores WHERE day = ' + mysql.escape(day) + ' AND time = ' + mysql.escape(time) + ' AND aktivitet = ' + mysql.escape(aktivitet), function(err, result) {
-        if (err) console.log('Scores', err);
+        if (err) {
+          console.log('Scores', err);
+        }
         var score = 0;
         var ny = 1;
         if (result && result.length > 0) {
@@ -104,7 +118,9 @@ exports.saveData = function(data, callback) {
           id: groupid,
           name: data.group
         }, function(err, result) {
-          if (err) console.log('Groups', err);
+          if (err) {
+            console.log('Groups', err);
+          }
           // Update classes
           connection.query('INSERT INTO datastil.classes SET ? ON DUPLICATE KEY UPDATE ' + mysql.escape({
             groupid: groupid,
@@ -130,7 +146,9 @@ exports.saveData = function(data, callback) {
             score: score,
             ny: ny
           }, function(err, result) {
-            if (err) console.log('Classes', err);
+            if (err) {
+              console.log('Classes', err);
+            }
             // Add data
             connection.query('INSERT INTO datastil.class_data SET ?', {
                 classid: id,
@@ -140,7 +158,9 @@ exports.saveData = function(data, callback) {
                 totalt: totalt
               },
               function(err, result) {
-                if (err) console.log('Data', err);
+                if (err) {
+                  console.log('Data', err);
+                }
                 connection.release();
                 callback(err);
               });
@@ -160,10 +180,12 @@ exports.updateScores = function() {
     if (err) {
       // No connection
       connection.release();
-      return callback(err);
+      return;
     }
     connection.query('SELECT id, day, time, aktivitet FROM datastil.classes WHERE startTime < ' + mysql.escape(currentTime) + ' ORDER BY startTime ASC', function(err, result) {
-      if (err) console.log('UpdateScores1', err);
+      if (err) {
+        console.log('UpdateScores1', err);
+      }
       async.eachSeries(result, function(item, callback) {
         exports.getClassData(item.id, function(err, result) {
           if (err) {
