@@ -2,6 +2,7 @@ angular.module('app', [
   'ngRoute',
   'list',
   'info',
+  'filters.capitalize',
   'services.breadcrumbs',
   'templates.app',
   'templates.common'
@@ -23,6 +24,7 @@ angular.module('app').controller('AppCtrl', ['$scope',
 angular.module('app').controller('HeaderCtrl', ['$scope', '$location', '$route', 'breadcrumbs',
   function($scope, $location, $route, breadcrumbs) {
     $scope.location = $location;
+    $scope.breadcrumbs = breadcrumbs;
 
     $scope.isNavbarActive = function(navBarPath) {
       return navBarPath === breadcrumbs.getFirst().name;
