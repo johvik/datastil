@@ -41,4 +41,4 @@ exports.update = function() {
       console.log('Done ' + new Date(), err, page);
     }
   );
-}
+};
