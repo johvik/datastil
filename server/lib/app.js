@@ -1,62 +1,19 @@
-var request = require('superagent');
-var async = require('async');
 var cronJob = require('cron').CronJob;
 var express = require('express');
 var path = require('path');
 var app = express();
+var data = require('./data');
 var db = require('./db');
 
 // Run every 5 min
 var job1 = new cronJob('*/5 * * * *', function() {
-  update();
+  data.update();
 });
 
 // Run every night at 3:33
 var job2 = new cronJob('33 3 * * *', function() {
   db.updateScores();
 });
-
-
-var done = true;
-
-function update() {
-  if (!done) {
-    console.log('Update already running... ' + new Date());
-    return; // Let old update finish
-  } else {
-    console.log('Starting update ' + new Date());
-  }
-  done = false;
-  var page = 0;
-  async.whilst(
-    function() {
-      return !done;
-    },
-    function(callback) {
-      request.get('http://www.mittlivsstil.se/api/classes/' + page + '/').end(function(err, res) {
-        if (err) {
-          return callback(err);
-        }
-        var classes = res.body.classes;
-        if (!classes) {
-          return callback('Classes not found');
-        }
-        async.eachSeries(classes, db.saveData, function(err) {
-          if (classes.length < 20) { // 20 classes/page
-            done = true;
-          }
-          page++;
-          callback(err);
-        });
-      });
-    },
-    function(err) {
-      // Always set true just to be sure
-      done = true;
-      console.log('Done ' + new Date(), err, page);
-    }
-  );
-}
 
 var dist = path.join(__dirname, '..', '..', 'client', 'dist');
 var maxAge = 3600000; // 1h
