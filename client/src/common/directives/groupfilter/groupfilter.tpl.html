@@ -1,6 +1,6 @@
 <form class="form-inline">
   <label>Filter:</label>
-  <div class="checkbox" ng-repeat="group in groups">
+  <div class="checkbox" ng-repeat="group in groups | orderBy:'name'">
     <label>
       <input type="checkbox" value="{{group.id}}" ng-checked="filterVar.indexOf(group.id) === -1" ng-click="groupFilterChange(group.id)">{{group.name}}&nbsp;
     </label>
