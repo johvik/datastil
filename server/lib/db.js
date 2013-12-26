@@ -279,6 +279,15 @@ exports.getClassData = function(id, callback) {
   });
 };
 
+exports.getClassInfo = function(id, callback) {
+  pool.getConnection(function(err, connection) {
+    connection.query('SELECT id, day, time, groupid, startTime, bokningsbara, aktivitet, lokal, resurs, score, ny FROM datastil.classes WHERE id = ' + mysql.escape(id), function(err, result) {
+      connection.release();
+      callback(err, result[0]);
+    });
+  });
+};
+
 exports.getScores = function(callback) {
   pool.getConnection(function(err, connection) {
     connection.query('SELECT day, time, aktivitet, score, bokningsbara FROM datastil.scores ORDER BY score ASC', function(err, result) {

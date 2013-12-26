@@ -74,6 +74,22 @@ app.get('/class/:id', function(req, res) {
   db.getClassData(id, function(err, result) {
     if (err) {
       return res.send(500);
+    } else if (result.length === 0) {
+      return res.send(404);
+    }
+    res.json(result);
+  });
+});
+app.get('/class/:id/info', function(req, res) {
+  var id = parseInt(req.params.id, 10);
+  if (isNaN(id)) {
+    return res.send(400);
+  }
+  db.getClassInfo(id, function(err, result) {
+    if (err) {
+      return res.send(500);
+    } else if (!result) {
+      return res.send(404);
     }
     res.json(result);
   });

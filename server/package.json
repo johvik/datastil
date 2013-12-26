@@ -14,7 +14,7 @@
   "dependencies": {
     "async": ">=0.2.9",
     "superagent": ">=0.15.7",
-    "mysql": ">=2.0.0-alpha9",
+    "mysql": ">=2.0.0-rc2",
     "cron": ">=1.0.1",
     "express": ">=3.4.4",
     "forever": ">=0.10.9"
