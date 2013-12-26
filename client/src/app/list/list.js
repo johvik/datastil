@@ -10,6 +10,13 @@ angular.module('list', ['services.classes', 'directives.group-filter', 'filters.
 angular.module('list').controller('ListCtrl', ['$scope', 'classes',
   function($scope, classes) {
     $scope.classes = classes;
-    $scope.$watchCollection('hiddenGroups', classes.nextPage);
+    // Read stored values
+    $scope.hiddenGroups = JSON.parse(localStorage.getItem('hiddenGroups') || '[]');
+    $scope.$watchCollection('hiddenGroups', function(value) {
+      // Store new values
+      localStorage.setItem('hiddenGroups', JSON.stringify(value));
+      // Get next page to make sure it gets triggered
+      classes.nextPage();
+    });
   }
 ]);
