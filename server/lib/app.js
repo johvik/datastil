@@ -6,14 +6,13 @@ var data = require('./data');
 var db = require('./db');
 
 // Run every 5 min
-var job1 = new cronJob('*/5 * * * *', function() {
-  data.update();
-});
+var job1 = new cronJob('*/5 * * * *', data.update);
 
 // Run every night at 3:33
-var job2 = new cronJob('33 3 * * *', function() {
-  db.updateScores();
-});
+var job2 = new cronJob('33 3 * * *', db.updateScores);
+
+// Run every 5h
+var job3 = new cronJob('2 */5 * * *', db.mergeData);
 
 var dist = path.join(__dirname, '..', '..', 'client', 'dist');
 var maxAge = 3600000; // 1h
@@ -120,3 +119,4 @@ app.listen(9001, function() {
 // Start cron jobs
 job1.start();
 job2.start();
+job3.start();

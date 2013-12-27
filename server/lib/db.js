@@ -247,6 +247,64 @@ exports.updateScores = function() {
   });
 };
 
+exports.mergeData = function() {
+  pool.getConnection(function(err, connection) {
+    if (err) {
+      // No connection
+      connection.release();
+      return;
+    }
+    connection.query('SELECT id FROM datastil.classes', function(err, result) {
+      if (err) {
+        console.log('MergeData1', err);
+      }
+      // Now - 6h, time between checks is 5h
+      var prevTime = new Date().getTime() - 21600000;
+      async.eachSeries(result, function(item, callback) {
+        connection.query('SELECT id, bokningsbara, waitinglistsize, totalt FROM datastil.class_data WHERE classid = ' + mysql.escape(item.id) + ' AND time >= ' + mysql.escape(prevTime) + ' ORDER BY time ASC', function(err, result) {
+          if (err) {
+            return callback(err);
+          }
+          var length = result.length;
+          if (length >= 3) {
+            var prev = result[0];
+            var remove = []; // ids to remove
+
+            // Skip first and last
+            for (var i = 1; i < length - 1; i++) {
+              var curr = result[i];
+              var next = result[i + 1];
+              // Compare to prev and next
+              if (curr.bokningsbara === prev.bokningsbara &&
+                curr.waitinglistsize === prev.waitinglistsize &&
+                curr.totalt === prev.totalt &&
+                curr.bokningsbara === next.bokningsbara &&
+                curr.waitinglistsize === next.waitinglistsize &&
+                curr.totalt === next.totalt) {
+                // All three are equal, remove middle element
+                remove.push(curr.id);
+              }
+              prev = curr;
+            }
+            // Remove unnecesary data
+            if (remove.length > 0) {
+              connection.query('DELETE FROM datastil.class_data WHERE id IN (' + mysql.escape(remove) + ')', callback);
+            } else {
+              callback(null);
+            }
+          } else {
+            // Do nothing
+            callback(null);
+          }
+        });
+      }, function(err) {
+        connection.release();
+        console.log('MergeData2', err);
+      });
+    });
+  });
+};
+
 exports.getGroups = function(callback) {
   pool.getConnection(function(err, connection) {
     connection.query('SELECT id, name FROM datastil.groups', function(err, result) {
