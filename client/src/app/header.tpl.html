@@ -19,10 +19,10 @@
   </nav>
   <div class="container">
     <ol class="breadcrumb">
-      <li ng-repeat="breadcrumb in breadcrumbs.getAll()">
+      <li ng-repeat="breadcrumb in breadcrumbs.getAll()" ng-class="{active:$last}">
         <ng-switch on="$last">
-          <span ng-switch-when="true" class="active">{{breadcrumb.name | capitalize}}</span>
-          <span ng-switch-default><a href="{{breadcrumb.path}}">{{breadcrumb.name | capitalize}}</a></span>
+          <span ng-switch-when="true">{{breadcrumb.name | capitalize}}</span>
+          <a ng-switch-default href="{{breadcrumb.path}}">{{breadcrumb.name | capitalize}}</a>
         </ng-switch>
       </li>
     </ol>
