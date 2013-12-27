@@ -6,12 +6,12 @@ angular.module('info', ['services.classdata'], ['$routeProvider',
       resolve: {
         data: ['$route', 'ClassData',
           function($route, ClassData) {
-            return ClassData.getData($route.current.params.id);
+            return ClassData.getData($route.current.params.id).$promise;
           }
         ],
         info: ['$route', 'ClassData',
           function($route, ClassData) {
-            return ClassData.getInfo($route.current.params.id);
+            return ClassData.getInfo($route.current.params.id).$promise;
           }
         ]
       }
