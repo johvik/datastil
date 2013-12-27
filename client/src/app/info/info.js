@@ -19,8 +19,8 @@ angular.module('info', ['services.classdata', 'nvd3ChartDirectives'], ['$routePr
   }
 ]);
 
-angular.module('info').controller('InfoCtrl', ['$scope', '$routeParams', '$filter', 'data', 'info',
-  function($scope, $routeParams, $filter, data, info) {
+angular.module('info').controller('InfoCtrl', ['$scope', '$filter', 'data', 'info',
+  function($scope, $filter, data, info) {
     $scope.data = [{
       values: data
     }];
