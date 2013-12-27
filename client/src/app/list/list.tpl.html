@@ -11,7 +11,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr ng-repeat="class in classesFiltered = (classes.data | notInArray:hiddenGroups:'groupid')" ng-click="classInfo(class)">
+      <tr class="clickable" ng-repeat="class in classesFiltered = (classes.data | notInArray:hiddenGroups:'groupid')" ng-click="classInfo(class)">
         <td>{{class.aktivitet}}</td>
         <td>{{class.resurs}}</td>
         <td>{{class.startTime | date:'HH:mm, EEEE, MMM d'}}</td>
