@@ -8,11 +8,13 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-recess');
   grunt.loadNpmTasks('grunt-karma');
   grunt.loadNpmTasks('grunt-html2js');
+  grunt.loadNpmTasks('grunt-env');
+  grunt.loadNpmTasks('grunt-preprocess');
 
   // Default task.
   grunt.registerTask('default', ['jshint', 'build', 'karma:unit']);
-  grunt.registerTask('build', ['clean', 'html2js', 'concat', 'recess:build', 'copy:assets']);
-  grunt.registerTask('release', ['clean', 'html2js', 'uglify', 'jshint', 'concat:index', 'recess:min', 'copy:assets', 'karma:unit']);
+  grunt.registerTask('build', ['env:dev', 'clean', 'html2js', 'concat', 'preprocess', 'recess:build', 'copy:assets']);
+  grunt.registerTask('release', ['env:prod', 'clean', 'html2js', 'uglify', 'jshint', 'preprocess', 'recess:min', 'copy:assets', 'karma:unit']);
   grunt.registerTask('test-watch', ['karma:watch']);
 
   // Print a timestamp (useful for when watching)
@@ -101,16 +103,13 @@ module.exports = function(grunt) {
         src: ['<%= src.js %>', '<%= src.jsTpl %>'],
         dest: '<%= distdir %>/<%= pkg.name %>.js'
       },
-      index: {
-        src: ['src/index.html'],
-        dest: '<%= distdir %>/index.html',
-        options: {
-          process: true
-        }
-      },
       angular: {
         src: ['vendor/angular/angular.js', 'vendor/angular/*.js'],
         dest: '<%= distdir %>/angular.js'
+      },
+      angularlibs: {
+        src: ['vendor/angular-libs/*.js'],
+        dest: '<%= distdir %>/angular-libs.js'
       },
       bootstrap: {
         src: ['vendor/bootstrap/*.js'],
@@ -130,24 +129,17 @@ module.exports = function(grunt) {
         options: {
           banner: "<%= banner %>"
         },
-        src: ['<%= src.js %>', '<%= src.jsTpl %>'],
+        // Merge all to one .js
+        src: [
+          //'<%= concat.jquery.src %>',
+          //'<%= concat.angular.src %>',
+          //'<%= concat.bootstrap.src %>',
+          '<%= concat.angularlibs.src %>',
+          '<%= concat.nvd3.src %>',
+          '<%= src.js %>',
+          '<%= src.jsTpl %>'
+        ],
         dest: '<%= distdir %>/<%= pkg.name %>.js'
-      },
-      angular: {
-        src: ['<%= concat.angular.src %>'],
-        dest: '<%= distdir %>/angular.js'
-      },
-      bootstrap: {
-        src: ['<%= concat.bootstrap.src %>'],
-        dest: '<%= distdir %>/bootstrap.js'
-      },
-      nvd3: {
-        src: ['<%= concat.nvd3.src %>'],
-        dest: '<%= distdir %>/nvd3.js'
-      },
-      jquery: {
-        src: ['<%= concat.jquery.src %>'],
-        dest: '<%= distdir %>/jquery.js'
       }
     },
     recess: {
@@ -161,7 +153,7 @@ module.exports = function(grunt) {
       },
       min: {
         files: {
-          '<%= distdir %>/<%= pkg.name %>.css': ['vendor/bootstrap/bootstrap.css', 'vendor/bootstrap/bootstrap-theme.css', 'vendor/nvd3/nv.d3.css', '<%= src.css %>']
+          '<%= distdir %>/<%= pkg.name %>.css': ['vendor/nvd3/nv.d3.css', '<%= src.css %>']
         },
         options: {
           compress: true
@@ -191,6 +183,25 @@ module.exports = function(grunt) {
         boss: true,
         eqnull: true,
         globals: {}
+      }
+    },
+    env: {
+      dev: {
+        BUILD_ENV: 'development'
+      },
+      prod: {
+        BUILD_ENV: 'production'
+      }
+    },
+    preprocess: {
+      index: {
+        src: ['src/index.html'],
+        dest: '<%= distdir %>/index.html',
+        options: {
+          context: {
+            name: '<%= pkg.name %>'
+          }
+        }
       }
     }
   });

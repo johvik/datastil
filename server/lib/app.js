@@ -20,7 +20,9 @@ var maxAge = 3600000; // 1h
 
 // Set up middleware
 app.use(express.compress());
-app.use(express.favicon(path.join(dist, 'favicon.ico')));
+app.use(express.favicon(path.join(dist, 'favicon.ico'), {
+  maxAge: maxAge
+}));
 app.use('/static', express.static(dist, {
   maxAge: maxAge
 }));
