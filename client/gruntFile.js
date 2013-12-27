@@ -109,12 +109,16 @@ module.exports = function(grunt) {
         }
       },
       angular: {
-        src: ['vendor/angular/angular.js', 'vendor/angular/angular-resource.js', 'vendor/angular/angular-route.js', 'vendor/angular/ng-infinite-scroll.js'],
+        src: ['vendor/angular/angular.js', 'vendor/angular/*.js'],
         dest: '<%= distdir %>/angular.js'
       },
       bootstrap: {
         src: ['vendor/bootstrap/*.js'],
         dest: '<%= distdir %>/bootstrap.js'
+      },
+      nvd3: {
+        src: ['vendor/nvd3/d3.v3.js', 'vendor/nvd3/nv.d3.js'],
+        dest: '<%= distdir %>/nvd3.js'
       },
       jquery: {
         src: ['vendor/jquery/*.js'],
@@ -137,15 +141,19 @@ module.exports = function(grunt) {
         src: ['<%= concat.bootstrap.src %>'],
         dest: '<%= distdir %>/bootstrap.js'
       },
+      nvd3: {
+        src: ['<%= concat.nvd3.src %>'],
+        dest: '<%= distdir %>/nvd3.js'
+      },
       jquery: {
-        src: ['vendor/jquery/*.js'],
+        src: ['<%= concat.jquery.src %>'],
         dest: '<%= distdir %>/jquery.js'
       }
     },
     recess: {
       build: {
         files: {
-          '<%= distdir %>/<%= pkg.name %>.css': ['vendor/bootstrap/bootstrap.css', 'vendor/bootstrap/bootstrap-theme.css', '<%= src.css %>']
+          '<%= distdir %>/<%= pkg.name %>.css': ['vendor/bootstrap/bootstrap.css', 'vendor/bootstrap/bootstrap-theme.css', 'vendor/nvd3/nv.d3.css', '<%= src.css %>']
         },
         options: {
           compile: true
@@ -153,7 +161,7 @@ module.exports = function(grunt) {
       },
       min: {
         files: {
-          '<%= distdir %>/<%= pkg.name %>.css': ['vendor/bootstrap/bootstrap.css', 'vendor/bootstrap/bootstrap-theme.css', '<%= src.css %>']
+          '<%= distdir %>/<%= pkg.name %>.css': ['vendor/bootstrap/bootstrap.css', 'vendor/bootstrap/bootstrap-theme.css', 'vendor/nvd3/nv.d3.css', '<%= src.css %>']
         },
         options: {
           compress: true

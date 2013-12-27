@@ -28,6 +28,7 @@ function initDB() {
             'time CHAR(5) NOT NULL,' +
             'groupid INT NOT NULL,' +
             'startTime BIGINT NOT NULL,' +
+            // This is actually bokningsbara - waitinglistsize
             'bokningsbara INT NOT NULL,' +
             'aktivitet VARCHAR(50) NOT NULL,' +
             'lokal TEXT NOT NULL,' +
@@ -127,7 +128,7 @@ exports.saveData = function(data, callback) {
             day: day,
             time: time,
             startTime: startTime,
-            bokningsbara: bokningsbara,
+            bokningsbara: bokningsbara - waitinglistsize,
             aktivitet: aktivitet,
             lokal: data.lokal,
             resurs: data.resurs,
@@ -139,7 +140,7 @@ exports.saveData = function(data, callback) {
             day: day,
             time: time,
             startTime: startTime,
-            bokningsbara: bokningsbara,
+            bokningsbara: bokningsbara - waitinglistsize,
             aktivitet: aktivitet,
             lokal: data.lokal,
             resurs: data.resurs,

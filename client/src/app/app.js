@@ -17,8 +17,12 @@ angular.module('app').config(['$routeProvider', '$locationProvider',
   }
 ]);
 
-angular.module('app').controller('AppCtrl', ['$scope',
-  function($scope) {}
+angular.module('app').controller('AppCtrl', ['$scope', '$location',
+  function($scope, $location) {
+    $scope.$on('$routeChangeError', function() {
+      $location.path('/list');
+    });
+  }
 ]);
 
 angular.module('app').controller('HeaderCtrl', ['$scope', '$location', '$route', 'breadcrumbs',

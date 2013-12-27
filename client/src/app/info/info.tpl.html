@@ -1,5 +1,16 @@
 <h1>{{info.aktivitet}}</h1>
-<p>{{info.resurs}}</p>
-<p>{{info.startTime | date:'HH:mm, EEEE, MMM d'}}</p>
-<p>{{info.bokningsbara}}</p>
-{{data}}
+<table>
+  <tr ng-if="info.resurs">
+    <th>Resource&nbsp;</th>
+    <td>{{info.resurs}}</td>
+  </tr>
+  <tr>
+    <th>Time</th>
+    <td>{{info.startTime | date:'HH:mm, EEEE, MMM d'}}</td>
+  </tr>
+  <tr>
+    <th>Available&nbsp;</th>
+    <td>{{info.bokningsbara}}</td>
+  </tr>
+</table>
+<nvd3-line-chart id="history-chart" height="300" data="data" showXAxis="true" showYAxis="true" xAxisTickFormat="xAxisTickFormat()" yAxisTickFormat="yAxisTickFormat()" x="xFunction()" y="yFunction()" forcex="[{{forcex}}]"></nvd3-line-chart>

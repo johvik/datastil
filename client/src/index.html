@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" ng-app="app">
+
 <head>
   <title>Datastil</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
   <script type="text/javascript" src="/static/jquery.js"></script>
   <script type="text/javascript" src="/static/angular.js"></script>
   <script type="text/javascript" src="/static/bootstrap.js"></script>
+  <script type="text/javascript" src="/static/nvd3.js"></script>
   <script type="text/javascript" src="/static/<%= grunt.config.get('pkg.name') %>.js"></script>
 </head>
 
@@ -15,4 +17,5 @@
   <div ng-include="'header.tpl.html'"></div>
   <div class="container" ng-view></div>
 </body>
+
 </html>

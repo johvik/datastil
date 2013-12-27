@@ -10,6 +10,7 @@ files = [
   'vendor/angular/*.js',
   'test/vendor/angular/angular-mocks.js',
   'vendor/bootstrap/*.js',
+  'vendor/nvd3/*.js',
   'src/**/*.js',
   'test/unit/**/*.spec.js',
   'dist/templates/**/*.js'
