@@ -2,6 +2,7 @@ angular.module('app', [
   'ngRoute',
   'list',
   'info',
+  'highscore',
   'filters.capitalize',
   'services.breadcrumbs',
   'templates.app',
