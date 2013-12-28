@@ -29,8 +29,9 @@
 </head>
 
 <body ng-controller="AppCtrl">
-  <div ng-include="'header.tpl.html'"></div>
+  <div ng-include="'header.tpl.html'" ng-controller="HeaderCtrl"></div>
   <div class="container" ng-view></div>
+  <div class="container" ng-include="'footer.tpl.html'"></div>
 </body>
 
 </html>
