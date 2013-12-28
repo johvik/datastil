@@ -20,6 +20,6 @@ describe('datastorage', function() {
     dataStorage.storeSearchText('abc');
     expect(dataStorage.loadSearchText()).toBe('abc');
     dataStorage.storeSearchText('');
-    expect(dataStorage.loadSearchText()).toEqual('');
+    expect(dataStorage.loadSearchText()).toBe('');
   });
 });
