@@ -194,15 +194,23 @@ exports.updateScores = function() {
           }
           var length = result.length;
           if (length > 0) {
+            var dt;
             var last = result[length - 1];
             var prev = result[0];
             var score = prev.bokningsbara - prev.waitinglistsize;
             for (var i = 1; i < length; i++) {
               var curr = result[i];
-              var dt = (curr.time - prev.time) / 60000; // minutes
+              dt = (curr.time - prev.time) / 60000; // minutes
               score += (curr.bokningsbara - curr.waitinglistsize) * dt;
               prev = curr;
             }
+
+            // Extend last if data is missing
+            if (last.time < currentTime) {
+              dt = (currentTime - last.time) / 60000; // minutes
+              score += (last.bokningsbara - last.waitinglistsize) * dt;
+            }
+
             if (last.totalt !== 0) {
               score = score / last.totalt;
             }
