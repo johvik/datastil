@@ -1,5 +1,11 @@
 <h1>List</h1>
 <group-filter filter-var="hiddenGroups"></group-filter>
+<form class="form">
+  <div class="form-group">
+    <label class="sr-only" for="searchText">Search:</label>
+    <input type="text" class="form-control" id="searchText" placeholder="Text search" ng-model="searchText">
+  </div>
+</form>
 <div class="table-responsive">
   <table class="table table-hover" infinite-scroll="classes.nextPage()" infinite-scroll-disabled="!classes.hasNext || classes.pageLoading" infinite-scroll-distance="1">
     <thead>
@@ -11,7 +17,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr class="clickable" ng-repeat="class in classesFiltered = (classes.data | notInArray:hiddenGroups:'groupid')" ng-click="classInfo(class)">
+      <tr class="clickable" ng-repeat="class in classesFiltered = (classes.data | notInArray:hiddenGroups:'groupid' | filter:searchText)" ng-click="classInfo(class)">
         <td>{{class.aktivitet}}</td>
         <td>{{class.resurs}}</td>
         <td>{{class.startTime | date:'HH:mm, EEEE, MMM d'}}</td>

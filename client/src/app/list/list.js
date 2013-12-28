@@ -1,4 +1,4 @@
-angular.module('list', ['services.classes', 'directives.group-filter', 'filters.not-in-array', 'infinite-scroll'], ['$routeProvider',
+angular.module('list', ['services.classes', 'services.data-storage', 'directives.group-filter', 'filters.not-in-array', 'infinite-scroll'], ['$routeProvider',
   function($routeProvider) {
     $routeProvider.when('/list', {
       templateUrl: 'list/list.tpl.html',
@@ -7,17 +7,20 @@ angular.module('list', ['services.classes', 'directives.group-filter', 'filters.
   }
 ]);
 
-angular.module('list').controller('ListCtrl', ['$scope', '$location', 'classes',
-  function($scope, $location, classes) {
+angular.module('list').controller('ListCtrl', ['$scope', '$location', 'classes', 'dataStorage',
+  function($scope, $location, classes, dataStorage) {
     $scope.classes = classes;
+
     // Read stored values
-    $scope.hiddenGroups = JSON.parse(localStorage.getItem('hiddenGroups') || '[]');
+    $scope.hiddenGroups = dataStorage.loadHiddenGroups();
+    $scope.searchText = dataStorage.loadSearchText();
+
     $scope.$watchCollection('hiddenGroups', function(value) {
-      // Store new values
-      localStorage.setItem('hiddenGroups', JSON.stringify(value));
-      // Get next page to make sure it gets triggered
+      dataStorage.storeHiddenGroups(value);
+      // Get next page to make sure loading gets triggered
       classes.nextPage();
     });
+    $scope.$watch('searchText', dataStorage.storeSearchText);
 
     $scope.classInfo = function(c) {
       $location.path('/list/' + c.id);
