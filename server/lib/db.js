@@ -55,11 +55,14 @@ function initDB() {
                   connection.query('CREATE TABLE IF NOT EXISTS datastil.scores(' +
                     'day INT NOT NULL,' +
                     'time CHAR(5) NOT NULL,' +
+                    'startTime BIGINT NOT NULL,' +
                     'aktivitet VARCHAR(50) NOT NULL,' +
                     'groupid INT NOT NULL,' +
                     'score INT NOT NULL,' +
                     'lediga INT NOT NULL,' +
                     'bokningsbara INT NOT NULL,' +
+                    'lokal TEXT NOT NULL,' +
+                    'resurs TEXT NOT NULL,' +
                     'PRIMARY KEY (day, time, aktivitet))', function(err) {
                       if (err) {
                         throw err;
@@ -193,7 +196,7 @@ exports.updateScores = function() {
       connection.release();
       return;
     }
-    connection.query('SELECT id, day, time, groupid, aktivitet FROM datastil.classes WHERE startTime < ' + mysql.escape(currentTime) + ' ORDER BY startTime ASC', function(err, result) {
+    connection.query('SELECT id, day, time, startTime, groupid, aktivitet, lokal, resurs FROM datastil.classes WHERE startTime < ' + mysql.escape(currentTime) + ' ORDER BY startTime ASC', function(err, result) {
       if (err) {
         console.log('UpdateScores1', err);
       }
@@ -228,18 +231,24 @@ exports.updateScores = function() {
 
             // Update score
             connection.query('INSERT INTO datastil.scores SET ? ON DUPLICATE KEY UPDATE ' + mysql.escape({
+              startTime: item.startTime,
               groupid: item.groupid,
               score: score,
               lediga: last.lediga,
-              bokningsbara: (last.bokningsbara - last.waitinglistsize)
+              bokningsbara: (last.bokningsbara - last.waitinglistsize),
+              lokal: item.lokal,
+              resurs: item.resurs
             }), {
               day: item.day,
               time: item.time,
+              startTime: item.startTime,
               aktivitet: item.aktivitet,
               groupid: item.groupid,
               score: score,
               lediga: last.lediga,
-              bokningsbara: (last.bokningsbara - last.waitinglistsize)
+              bokningsbara: (last.bokningsbara - last.waitinglistsize),
+              lokal: item.lokal,
+              resurs: item.resurs
             }, function(err, result) {
               if (err) {
                 return callback(err);
@@ -373,7 +382,7 @@ exports.getClassInfo = function(id, callback) {
 
 exports.getScores = function(callback) {
   pool.getConnection(function(err, connection) {
-    connection.query('SELECT day, time, aktivitet, groupid, score, lediga, bokningsbara FROM datastil.scores ORDER BY score ASC', function(err, result) {
+    connection.query('SELECT day, time, startTime, aktivitet, groupid, score, lediga, bokningsbara, lokal, resurs FROM datastil.scores ORDER BY score ASC', function(err, result) {
       connection.release();
       callback(err, result);
     });
