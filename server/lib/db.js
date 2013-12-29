@@ -30,6 +30,7 @@ function initDB() {
             'startTime BIGINT NOT NULL,' +
             'lediga INT NOT NULL,' +
             'bokningsbara INT NOT NULL,' +
+            'totalt INT NOT NULL,' +
             'aktivitet VARCHAR(50) NOT NULL,' +
             'lokal TEXT NOT NULL,' +
             'resurs TEXT NOT NULL,' +
@@ -134,6 +135,7 @@ exports.saveData = function(data, callback) {
             startTime: startTime,
             lediga: lediga,
             bokningsbara: bokningsbara,
+            totalt: totalt,
             aktivitet: aktivitet,
             lokal: data.lokal,
             resurs: data.resurs,
@@ -147,6 +149,7 @@ exports.saveData = function(data, callback) {
             startTime: startTime,
             lediga: lediga,
             bokningsbara: bokningsbara,
+            totalt: totalt,
             aktivitet: aktivitet,
             lokal: data.lokal,
             resurs: data.resurs,
@@ -337,7 +340,7 @@ exports.getGroups = function(callback) {
 
 exports.getClasses = function(id, filter, callback) {
   var currentTime = new Date().getTime();
-  var query = 'SELECT id, day, time, groupid, startTime, lediga, bokningsbara, aktivitet, lokal, resurs, score, ny FROM datastil.classes WHERE startTime >= ' + mysql.escape(currentTime);
+  var query = 'SELECT id, day, time, groupid, startTime, lediga, bokningsbara, totalt, aktivitet, lokal, resurs, score, ny FROM datastil.classes WHERE startTime >= ' + mysql.escape(currentTime);
   if (filter.length > 0) {
     query += ' AND groupid IN (' + mysql.escape(filter) + ')';
   }
@@ -361,7 +364,7 @@ exports.getClassData = function(id, callback) {
 
 exports.getClassInfo = function(id, callback) {
   pool.getConnection(function(err, connection) {
-    connection.query('SELECT id, day, time, groupid, startTime, lediga, bokningsbara, aktivitet, lokal, resurs, score, ny FROM datastil.classes WHERE id = ' + mysql.escape(id), function(err, result) {
+    connection.query('SELECT id, day, time, groupid, startTime, lediga, bokningsbara, totalt, aktivitet, lokal, resurs, score, ny FROM datastil.classes WHERE id = ' + mysql.escape(id), function(err, result) {
       connection.release();
       callback(err, result[0]);
     });

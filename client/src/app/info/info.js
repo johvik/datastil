@@ -33,7 +33,7 @@ angular.module('info').controller('InfoCtrl', ['$scope', '$filter', 'data', 'inf
     };
     $scope.yFunction = function() {
       return function(d) {
-        return d.bokningsbara - d.waitinglistsize;
+        return d.lediga - d.waitinglistsize;
       };
     };
 
