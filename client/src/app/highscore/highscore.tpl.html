@@ -16,7 +16,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr ng-repeat="score in scoresFiltered = (scores | notInArray:hiddenGroups:'groupid' | filter:searchText)">
+      <tr ng-repeat="score in scoresFiltered = (scores | notInArray:hiddenGroups:'groupid' | classFilter:searchText)">
         <td>{{$index + 1}}</td>
         <td>{{score.aktivitet}}</td>
         <td>{{score.time}}, {{score.day | weekday}}</td>

@@ -1,4 +1,10 @@
-angular.module('highscore', ['services.scores', 'services.data-storage', 'directives.group-filter', 'filters.not-in-array', 'filters.weekday'], ['$routeProvider',
+angular.module('highscore', ['services.scores',
+  'services.data-storage',
+  'directives.group-filter',
+  'filters.not-in-array',
+  'filters.weekday',
+  'filters.class-filter'
+], ['$routeProvider',
   function($routeProvider) {
     $routeProvider.when('/highscore', {
       templateUrl: 'highscore/highscore.tpl.html',
