@@ -28,7 +28,7 @@ function initDB() {
             'time CHAR(5) NOT NULL,' +
             'groupid INT NOT NULL,' +
             'startTime BIGINT NOT NULL,' +
-            // This is actually bokningsbara - waitinglistsize
+            'lediga INT NOT NULL,' +
             'bokningsbara INT NOT NULL,' +
             'aktivitet VARCHAR(50) NOT NULL,' +
             'lokal TEXT NOT NULL,' +
@@ -42,6 +42,7 @@ function initDB() {
                 'id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,' +
                 'classid INT NOT NULL,' +
                 'time BIGINT NOT NULL,' +
+                'lediga INT NOT NULL,' +
                 'bokningsbara INT NOT NULL,' +
                 'waitinglistsize INT NOT NULL,' +
                 'totalt INT NOT NULL,' +
@@ -56,6 +57,7 @@ function initDB() {
                     'aktivitet VARCHAR(50) NOT NULL,' +
                     'groupid INT NOT NULL,' +
                     'score INT NOT NULL,' +
+                    'lediga INT NOT NULL,' +
                     'bokningsbara INT NOT NULL,' +
                     'PRIMARY KEY (day, time, aktivitet))', function(err) {
                       if (err) {
@@ -76,10 +78,11 @@ exports.saveData = function(data, callback) {
   var id = parseInt(data.id, 10);
   var groupid = parseInt(data.groupid, 10);
   var startTime = parseInt(data.startTime, 10);
+  var lediga = parseInt(data.lediga, 10);
   var bokningsbara = parseInt(data.bokningsbara, 10);
   var waitinglistsize = parseInt(data.waitinglistsize, 10);
   var totalt = parseInt(data.totalt, 10);
-  if (!isNaN(id) && 'group' in data && !isNaN(groupid) && 'startTimeDT' in data && !isNaN(startTime) && 'aktivitet' in data && 'lokal' in data && 'resurs' in data && !isNaN(bokningsbara) && !isNaN(waitinglistsize) && !isNaN(totalt)) {
+  if (!isNaN(id) && 'group' in data && !isNaN(groupid) && 'startTimeDT' in data && !isNaN(startTime) && 'aktivitet' in data && 'lokal' in data && 'resurs' in data && !isNaN(lediga) && !isNaN(bokningsbara) && !isNaN(waitinglistsize) && !isNaN(totalt)) {
     var currentTime = new Date().getTime();
     // Make sure it hasn't occured yet
     if (startTime < currentTime) {
@@ -129,7 +132,8 @@ exports.saveData = function(data, callback) {
             day: day,
             time: time,
             startTime: startTime,
-            bokningsbara: bokningsbara - waitinglistsize,
+            lediga: lediga,
+            bokningsbara: bokningsbara,
             aktivitet: aktivitet,
             lokal: data.lokal,
             resurs: data.resurs,
@@ -141,7 +145,8 @@ exports.saveData = function(data, callback) {
             day: day,
             time: time,
             startTime: startTime,
-            bokningsbara: bokningsbara - waitinglistsize,
+            lediga: lediga,
+            bokningsbara: bokningsbara,
             aktivitet: aktivitet,
             lokal: data.lokal,
             resurs: data.resurs,
@@ -155,6 +160,7 @@ exports.saveData = function(data, callback) {
             connection.query('INSERT INTO datastil.class_data SET ?', {
                 classid: id,
                 time: currentTime,
+                lediga: lediga,
                 bokningsbara: bokningsbara,
                 waitinglistsize: waitinglistsize,
                 totalt: totalt
@@ -198,18 +204,18 @@ exports.updateScores = function() {
             var dt;
             var last = result[length - 1];
             var prev = result[0];
-            var score = prev.bokningsbara - prev.waitinglistsize;
+            var score = prev.lediga - prev.waitinglistsize;
             for (var i = 1; i < length; i++) {
               var curr = result[i];
               dt = (curr.time - prev.time) / 60000; // minutes
-              score += (curr.bokningsbara - curr.waitinglistsize) * dt;
+              score += (curr.lediga - curr.waitinglistsize) * dt;
               prev = curr;
             }
 
             // Extend last if data is missing
             if (last.time < currentTime) {
               dt = (currentTime - last.time) / 60000; // minutes
-              score += (last.bokningsbara - last.waitinglistsize) * dt;
+              score += (last.lediga - last.waitinglistsize) * dt;
             }
 
             if (last.totalt !== 0) {
@@ -221,6 +227,7 @@ exports.updateScores = function() {
             connection.query('INSERT INTO datastil.scores SET ? ON DUPLICATE KEY UPDATE ' + mysql.escape({
               groupid: item.groupid,
               score: score,
+              lediga: last.lediga,
               bokningsbara: (last.bokningsbara - last.waitinglistsize)
             }), {
               day: item.day,
@@ -228,6 +235,7 @@ exports.updateScores = function() {
               aktivitet: item.aktivitet,
               groupid: item.groupid,
               score: score,
+              lediga: last.lediga,
               bokningsbara: (last.bokningsbara - last.waitinglistsize)
             }, function(err, result) {
               if (err) {
@@ -272,7 +280,7 @@ exports.mergeData = function() {
       // Now - 6h, time between checks is 5h
       var prevTime = new Date().getTime() - 21600000;
       async.eachSeries(result, function(item, callback) {
-        connection.query('SELECT id, bokningsbara, waitinglistsize, totalt FROM datastil.class_data WHERE classid = ' + mysql.escape(item.id) + ' AND time >= ' + mysql.escape(prevTime) + ' ORDER BY time ASC', function(err, result) {
+        connection.query('SELECT id, lediga, bokningsbara, waitinglistsize, totalt FROM datastil.class_data WHERE classid = ' + mysql.escape(item.id) + ' AND time >= ' + mysql.escape(prevTime) + ' ORDER BY time ASC', function(err, result) {
           if (err) {
             return callback(err);
           }
@@ -286,9 +294,11 @@ exports.mergeData = function() {
               var curr = result[i];
               var next = result[i + 1];
               // Compare to prev and next
-              if (curr.bokningsbara === prev.bokningsbara &&
+              if (curr.lediga === prev.lediga &&
+                curr.bokningsbara === prev.bokningsbara &&
                 curr.waitinglistsize === prev.waitinglistsize &&
                 curr.totalt === prev.totalt &&
+                curr.lediga === next.lediga &&
                 curr.bokningsbara === next.bokningsbara &&
                 curr.waitinglistsize === next.waitinglistsize &&
                 curr.totalt === next.totalt) {
@@ -327,7 +337,7 @@ exports.getGroups = function(callback) {
 
 exports.getClasses = function(id, filter, callback) {
   var currentTime = new Date().getTime();
-  var query = 'SELECT id, day, time, groupid, startTime, bokningsbara, aktivitet, lokal, resurs, score, ny FROM datastil.classes WHERE startTime >= ' + mysql.escape(currentTime);
+  var query = 'SELECT id, day, time, groupid, startTime, lediga, bokningsbara, aktivitet, lokal, resurs, score, ny FROM datastil.classes WHERE startTime >= ' + mysql.escape(currentTime);
   if (filter.length > 0) {
     query += ' AND groupid IN (' + mysql.escape(filter) + ')';
   }
@@ -342,7 +352,7 @@ exports.getClasses = function(id, filter, callback) {
 
 exports.getClassData = function(id, callback) {
   pool.getConnection(function(err, connection) {
-    connection.query('SELECT time, bokningsbara, waitinglistsize, totalt FROM datastil.class_data WHERE classid = ' + mysql.escape(id) + ' ORDER BY time ASC', function(err, result) {
+    connection.query('SELECT time, lediga, bokningsbara, waitinglistsize, totalt FROM datastil.class_data WHERE classid = ' + mysql.escape(id) + ' ORDER BY time ASC', function(err, result) {
       connection.release();
       callback(err, result);
     });
@@ -351,7 +361,7 @@ exports.getClassData = function(id, callback) {
 
 exports.getClassInfo = function(id, callback) {
   pool.getConnection(function(err, connection) {
-    connection.query('SELECT id, day, time, groupid, startTime, bokningsbara, aktivitet, lokal, resurs, score, ny FROM datastil.classes WHERE id = ' + mysql.escape(id), function(err, result) {
+    connection.query('SELECT id, day, time, groupid, startTime, lediga, bokningsbara, aktivitet, lokal, resurs, score, ny FROM datastil.classes WHERE id = ' + mysql.escape(id), function(err, result) {
       connection.release();
       callback(err, result[0]);
     });
@@ -360,7 +370,7 @@ exports.getClassInfo = function(id, callback) {
 
 exports.getScores = function(callback) {
   pool.getConnection(function(err, connection) {
-    connection.query('SELECT day, time, aktivitet, groupid, score, bokningsbara FROM datastil.scores ORDER BY score ASC', function(err, result) {
+    connection.query('SELECT day, time, aktivitet, groupid, score, lediga, bokningsbara FROM datastil.scores ORDER BY score ASC', function(err, result) {
       connection.release();
       callback(err, result);
     });
