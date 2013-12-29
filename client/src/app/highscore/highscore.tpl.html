@@ -1,5 +1,5 @@
 <h1>Highscore</h1>
-<!--<group-filter filter-var="hiddenGroups"></group-filter>-->
+<group-filter filter-var="hiddenGroups"></group-filter>
 <form class="form">
   <div class="form-group">
     <label class="sr-only" for="searchText">Search:</label>
@@ -17,7 +17,7 @@
     </thead>
     <tbody>
       <tr ng-repeat="score in scoresFiltered = (scores | notInArray:hiddenGroups:'groupid' | filter:searchText)">
-        <td>{{scores.indexOf(score) + 1}}</td>
+        <td>{{$index + 1}}</td>
         <td>{{score.aktivitet}}</td>
         <td>{{score.time}}, {{score.day | weekday}}</td>
       </tr>

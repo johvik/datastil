@@ -54,6 +54,7 @@ function initDB() {
                     'day INT NOT NULL,' +
                     'time CHAR(5) NOT NULL,' +
                     'aktivitet VARCHAR(50) NOT NULL,' +
+                    'groupid INT NOT NULL,' +
                     'score INT NOT NULL,' +
                     'bokningsbara INT NOT NULL,' +
                     'PRIMARY KEY (day, time, aktivitet))', function(err) {
@@ -183,7 +184,7 @@ exports.updateScores = function() {
       connection.release();
       return;
     }
-    connection.query('SELECT id, day, time, aktivitet FROM datastil.classes WHERE startTime < ' + mysql.escape(currentTime) + ' ORDER BY startTime ASC', function(err, result) {
+    connection.query('SELECT id, day, time, groupid, aktivitet FROM datastil.classes WHERE startTime < ' + mysql.escape(currentTime) + ' ORDER BY startTime ASC', function(err, result) {
       if (err) {
         console.log('UpdateScores1', err);
       }
@@ -218,14 +219,16 @@ exports.updateScores = function() {
 
             // Update score
             connection.query('INSERT INTO datastil.scores SET ? ON DUPLICATE KEY UPDATE ' + mysql.escape({
+              groupid: item.groupid,
               score: score,
               bokningsbara: (last.bokningsbara - last.waitinglistsize)
             }), {
               day: item.day,
               time: item.time,
               aktivitet: item.aktivitet,
+              groupid: item.groupid,
               score: score,
-              bokningsbara: last.bokningsbara
+              bokningsbara: (last.bokningsbara - last.waitinglistsize)
             }, function(err, result) {
               if (err) {
                 return callback(err);
@@ -357,7 +360,7 @@ exports.getClassInfo = function(id, callback) {
 
 exports.getScores = function(callback) {
   pool.getConnection(function(err, connection) {
-    connection.query('SELECT day, time, aktivitet, score, bokningsbara FROM datastil.scores ORDER BY score ASC', function(err, result) {
+    connection.query('SELECT day, time, aktivitet, groupid, score, bokningsbara FROM datastil.scores ORDER BY score ASC', function(err, result) {
       connection.release();
       callback(err, result);
     });
