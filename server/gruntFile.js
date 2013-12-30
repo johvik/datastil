@@ -3,6 +3,7 @@
 module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-jsbeautifier');
 
   // Project configuration.
   grunt.initConfig({
@@ -32,11 +33,26 @@ module.exports = function(grunt) {
           exports: false
         }
       }
+    },
+    jsbeautifier: {
+      files: '<%= jshint.files %>',
+      options: {
+        html: {
+          indentSize: 2,
+          maxPreserveNewlines: 1
+        },
+        css: {
+          indentSize: 2
+        },
+        js: {
+          indentSize: 2
+        }
+      }
     }
   });
 
   // Default task.
-  grunt.registerTask('default', ['jshint']);
+  grunt.registerTask('default', ['jshint', 'jsbeautifier']);
 
   grunt.registerTask('timestamp', function() {
     grunt.log.subhead(Date());

@@ -18,6 +18,7 @@
     "grunt-html2js": "~0.1.0",
     "grunt-contrib-watch": "~0.3.1",
     "grunt-env": "~0.4.1",
-    "grunt-preprocess": "~4.0.0"
+    "grunt-preprocess": "~4.0.0",
+    "grunt-jsbeautifier": "~0.2.6"
   }
 }

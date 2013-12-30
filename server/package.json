@@ -21,7 +21,8 @@
   },
   "devDependencies": {
     "grunt": ">=0.4.2",
-    "grunt-contrib-jshint": ">=0.8.0"
+    "grunt-contrib-jshint": ">=0.8.0",
+    "grunt-jsbeautifier": ">=0.2.6"
   },
   "engine": "node >= 0.10.22"
 }
