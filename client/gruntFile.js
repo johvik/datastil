@@ -13,9 +13,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-jsbeautifier');
 
   // Default task.
-  grunt.registerTask('default', ['jshint', 'jsbeautifier', 'build', 'karma:unit']);
+  grunt.registerTask('default', ['jshint', 'jsbeautifier:default', 'build', 'karma:unit']);
   grunt.registerTask('build', ['env:dev', 'clean', 'html2js', 'concat', 'preprocess', 'recess:build', 'copy:assets']);
-  grunt.registerTask('release', ['env:prod', 'clean', 'html2js', 'uglify', 'jshint', 'jsbeautifier', 'preprocess', 'recess:min', 'copy:assets', 'karma:unit']);
+  grunt.registerTask('release', ['env:prod', 'clean', 'html2js', 'uglify', 'jshint', 'jsbeautifier:release', 'preprocess', 'recess:min', 'copy:assets', 'karma:unit']);
   grunt.registerTask('test-watch', ['karma:watch']);
 
   // Print a timestamp (useful for when watching)
@@ -206,24 +206,43 @@ module.exports = function(grunt) {
       }
     },
     jsbeautifier: {
-      files: ['<%= src.js %>',
-        '<%= src.specs %>',
-        '<%= src.scenarios %>',
-        '<%= src.cssWatch %>',
-        '<%= src.tpl.app %>',
-        '<%= src.tpl.common %>',
-        '<%= src.html %>'
-      ],
-      options: {
-        html: {
-          indentSize: 2,
-          maxPreserveNewlines: 1
-        },
-        css: {
-          indentSize: 2
-        },
-        js: {
-          indentSize: 2
+      'default': {
+        src: ['gruntFile.js',
+          '<%= src.js %>',
+          '<%= src.specs %>',
+          '<%= src.scenarios %>',
+          '<%= src.cssWatch %>',
+          '<%= src.tpl.app %>',
+          '<%= src.tpl.common %>',
+          '<%= src.html %>'
+        ],
+        options: {
+          html: {
+            indentSize: 2,
+            maxPreserveNewlines: 1
+          },
+          css: {
+            indentSize: 2
+          },
+          js: {
+            indentSize: 2
+          }
+        }
+      },
+      release: {
+        src: '<%= jsbeautifier.default.src %>',
+        options: {
+          mode: 'VERIFY_ONLY',
+          html: {
+            indentSize: 2,
+            maxPreserveNewlines: 1
+          },
+          css: {
+            indentSize: 2
+          },
+          js: {
+            indentSize: 2
+          }
         }
       }
     }

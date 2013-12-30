@@ -5,5 +5,5 @@ all:
 travis:
 	@echo "exports.USER = 'travis';\nexports.PASSWORD = '';" > server/config.js
 	@cd client && grunt release
-	@cd server && grunt
+	@cd server && grunt release
 
