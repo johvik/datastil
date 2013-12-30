@@ -15,6 +15,16 @@ angular.module('directives.group-filter', ['services.groups'])
         $scope.groups = groups;
         $scope.filterVar = $scope.filterVar || [];
 
+        $scope.groupFilterAll = function() {
+          var all = [];
+          if ($scope.filterVar.length === 0) {
+            for (var i = 0, j = groups.length; i < j; i++) {
+              all.push(groups[i].id);
+            }
+          }
+          $scope.filterVar = all;
+        };
+
         $scope.groupFilterChange = function(groupid) {
           var index = $scope.filterVar.indexOf(groupid);
           if (index >= 0) {
