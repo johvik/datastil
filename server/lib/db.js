@@ -61,6 +61,7 @@ function initDB() {
                     'score INT NOT NULL,' +
                     'lediga INT NOT NULL,' +
                     'bokningsbara INT NOT NULL,' +
+                    'totalt INT NOT NULL,' +
                     'lokal TEXT NOT NULL,' +
                     'resurs TEXT NOT NULL,' +
                     'PRIMARY KEY (day, time, aktivitet))', function(err) {
@@ -236,6 +237,7 @@ exports.updateScores = function() {
               score: score,
               lediga: last.lediga,
               bokningsbara: (last.bokningsbara - last.waitinglistsize),
+              totalt: last.totalt,
               lokal: item.lokal,
               resurs: item.resurs
             }), {
@@ -247,6 +249,7 @@ exports.updateScores = function() {
               score: score,
               lediga: last.lediga,
               bokningsbara: (last.bokningsbara - last.waitinglistsize),
+              totalt: last.totalt,
               lokal: item.lokal,
               resurs: item.resurs
             }, function(err, result) {
@@ -389,7 +392,7 @@ exports.getClassInfo = function(id, callback) {
 
 exports.getScores = function(callback) {
   pool.getConnection(function(err, connection) {
-    connection.query('SELECT day, time, startTime, aktivitet, groupid, score, lediga, bokningsbara, lokal, resurs FROM datastil.scores ORDER BY score ASC', function(err, result) {
+    connection.query('SELECT day, time, startTime, aktivitet, groupid, score, lediga, bokningsbara, totalt, lokal, resurs FROM datastil.scores ORDER BY score ASC', function(err, result) {
       connection.release();
       callback(err, result);
     });
