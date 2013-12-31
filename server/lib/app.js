@@ -11,8 +11,14 @@ var job1 = new cronJob('*/5 * * * *', data.update);
 // Run every night at 3:33
 var job2 = new cronJob('33 3 * * *', db.updateScores);
 
-// Run every 5h
-var job3 = new cronJob('2 */5 * * *', db.mergeData);
+// Run every hour
+var job3 = new cronJob('2 * * * *', function() {
+  if (new Date().getHours() === 2) {
+    db.mergeData(-1); // Full scan at 2:02
+  } else {
+    db.mergeData(600000); // Include 10 min old data
+  }
+});
 
 var dist = path.join(__dirname, '..', '..', 'client', 'dist');
 var maxAge = 30 * 24 * 60 * 60 * 1000; // in ms

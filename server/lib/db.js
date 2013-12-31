@@ -278,7 +278,8 @@ exports.updateScores = function() {
   });
 };
 
-exports.mergeData = function() {
+exports.mergeData = function(limit) {
+  // Use a negative limit to go through all
   pool.getConnection(function(err, connection) {
     if (err) {
       // No connection
@@ -289,8 +290,14 @@ exports.mergeData = function() {
       if (err) {
         console.log('MergeData1', err);
       }
-      // Now - 6h, time between checks is 5h
-      var prevTime = new Date().getTime() - 21600000;
+      // Add extra limit
+      var prevTime;
+      if (limit < 0) {
+        // Go through all
+        prevTime = 0;
+      } else {
+        prevTime = new Date().getTime() - limit;
+      }
       async.eachSeries(result, function(item, callback) {
         connection.query('SELECT id, lediga, bokningsbara, waitinglistsize, totalt FROM datastil.class_data WHERE classid = ' + mysql.escape(item.id) + ' AND time >= ' + mysql.escape(prevTime) + ' ORDER BY time ASC', function(err, result) {
           if (err) {
@@ -332,7 +339,7 @@ exports.mergeData = function() {
         });
       }, function(err) {
         connection.release();
-        console.log('MergeData2', err);
+        console.log('MergeData2', prevTime, err);
       });
     });
   });
