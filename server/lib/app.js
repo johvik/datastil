@@ -15,7 +15,7 @@ var job2 = new cronJob('33 3 * * *', db.updateScores);
 var job3 = new cronJob('2 */5 * * *', db.mergeData);
 
 var dist = path.join(__dirname, '..', '..', 'client', 'dist');
-var maxAge = 3600000; // 1h
+var maxAge = 30 * 24 * 60 * 60 * 1000; // in ms
 
 // Set up middleware
 app.use(express.compress());
@@ -39,6 +39,7 @@ app.get('/groups', function(req, res) {
     if (err) {
       return res.send(500);
     }
+    res.setHeader('Cache-Control', 'no-cache');
     res.json(result);
   });
 });
@@ -64,6 +65,7 @@ app.get('/classes/:id', function(req, res) {
     if (err) {
       return res.send(500);
     }
+    res.setHeader('Cache-Control', 'no-cache');
     res.json(result);
   });
 });
@@ -78,6 +80,7 @@ app.get('/class/:id', function(req, res) {
     } else if (result.length === 0) {
       return res.send(404);
     }
+    res.setHeader('Cache-Control', 'no-cache');
     res.json(result);
   });
 });
@@ -92,6 +95,7 @@ app.get('/class/:id/info', function(req, res) {
     } else if (!result) {
       return res.send(404);
     }
+    res.setHeader('Cache-Control', 'no-cache');
     res.json(result);
   });
 });
@@ -100,6 +104,7 @@ app.get('/scores', function(req, res) {
     if (err) {
       return res.send(500);
     }
+    res.setHeader('Cache-Control', 'no-cache');
     res.json(result);
   });
 });
