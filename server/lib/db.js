@@ -275,7 +275,7 @@ exports.updateScores = function() {
         });
       }, function(err) {
         connection.release();
-        console.log('UpdateScores2', err);
+        console.log('UpdateScores2 ' + new Date(), err);
       });
     });
   });
@@ -342,7 +342,7 @@ exports.mergeData = function(limit) {
         });
       }, function(err) {
         connection.release();
-        console.log('MergeData2', prevTime, err);
+        console.log('MergeData2 ' + new Date(), prevTime, err);
       });
     });
   });
