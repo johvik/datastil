@@ -220,8 +220,8 @@ exports.updateScores = function() {
             }
 
             // Extend last if data is missing
-            if (last.time < currentTime) {
-              dt = (currentTime - last.time) / 60000; // minutes
+            if (last.time < item.startTime) {
+              dt = (item.startTime - last.time) / 60000; // minutes
               score += (last.lediga - last.waitinglistsize) * dt;
             }
 
