@@ -122,12 +122,15 @@ app.all('/*', function(req, res) {
   });
 });
 
-// Start the server
-app.listen(9001, function() {
-  console.log('Server started ' + new Date());
-});
+// Let DB init first
+db.init(function() {
+  // Start the server
+  app.listen(9001, function() {
+    console.log('Server started ' + new Date());
+  });
 
-// Start cron jobs
-job1.start();
-job2.start();
-job3.start();
+  // Start cron jobs
+  job1.start();
+  job2.start();
+  job3.start();
+});

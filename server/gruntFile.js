@@ -14,6 +14,7 @@ module.exports = function(grunt) {
     jshint: {
       files: ['gruntFile.js', 'index.js', 'lib/*.js', 'test/**/*.js'],
       options: {
+        node: true,
         curly: true,
         eqeqeq: true,
         immed: true,
@@ -23,14 +24,7 @@ module.exports = function(grunt) {
         sub: true,
         undef: true,
         boss: true,
-        eqnull: true,
-        globals: {
-          require: false,
-          __dirname: false,
-          console: false,
-          module: false,
-          exports: false
-        }
+        eqnull: true
       }
     },
     jsbeautifier: {

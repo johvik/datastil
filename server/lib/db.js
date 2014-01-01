@@ -4,80 +4,111 @@ var async = require('async');
 
 var pool = mysql.createPool({
   user: config.USER,
-  password: config.PASSWORD
+  password: config.PASSWORD,
+  database: config.DB
 });
 
-function initDB() {
+function createDB(callback) {
+  if (!config.DB) {
+    throw 'No DB in config.js';
+  }
+  var connection = mysql.createConnection({
+    user: config.USER,
+    password: config.PASSWORD
+  });
+  connection.connect(function(err) {
+    if (err) {
+      throw err;
+    }
+    connection.query('CREATE DATABASE IF NOT EXISTS ' + config.DB, function(err) {
+      if (err) {
+        throw err;
+      }
+      connection.end(callback);
+    });
+  });
+}
+
+function createTables(callback) {
   pool.getConnection(function(err, connection) {
     if (err) {
       throw err;
     }
-    connection.query('CREATE DATABASE IF NOT EXISTS datastil', function(err) {
-      if (err) {
-        throw err;
-      }
-      connection.query('CREATE TABLE IF NOT EXISTS datastil.groups(' +
-        'id INT NOT NULL PRIMARY KEY,' +
-        'name TEXT NOT NULL)', function(err) {
-          if (err) {
-            throw err;
-          }
-          connection.query('CREATE TABLE IF NOT EXISTS datastil.classes(' +
-            'id INT NOT NULL PRIMARY KEY,' +
-            'day INT NOT NULL,' +
-            'time CHAR(5) NOT NULL,' +
-            'groupid INT NOT NULL,' +
-            'startTime BIGINT NOT NULL,' +
-            'lediga INT NOT NULL,' +
-            'bokningsbara INT NOT NULL,' +
-            'totalt INT NOT NULL,' +
-            'aktivitet VARCHAR(50) NOT NULL,' +
-            'lokal TEXT NOT NULL,' +
-            'resurs TEXT NOT NULL,' +
-            'score INT NOT NULL,' +
-            'ny BOOL NOT NULL)', function(err) {
-              if (err) {
-                throw err;
-              }
-              connection.query('CREATE TABLE IF NOT EXISTS datastil.class_data(' +
-                'id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,' +
-                'classid INT NOT NULL,' +
-                'time BIGINT NOT NULL,' +
-                'lediga INT NOT NULL,' +
-                'bokningsbara INT NOT NULL,' +
-                'waitinglistsize INT NOT NULL,' +
-                'totalt INT NOT NULL,' +
-                'INDEX(classid))', function(err) {
-                  if (err) {
-                    throw err;
-                  }
-                  // TODO Can this table be merged together with classes?
-                  connection.query('CREATE TABLE IF NOT EXISTS datastil.scores(' +
-                    'day INT NOT NULL,' +
-                    'time CHAR(5) NOT NULL,' +
-                    'startTime BIGINT NOT NULL,' +
-                    'aktivitet VARCHAR(50) NOT NULL,' +
-                    'groupid INT NOT NULL,' +
-                    'score INT NOT NULL,' +
-                    'lediga INT NOT NULL,' +
-                    'bokningsbara INT NOT NULL,' +
-                    'totalt INT NOT NULL,' +
-                    'lokal TEXT NOT NULL,' +
-                    'resurs TEXT NOT NULL,' +
-                    'PRIMARY KEY (day, time, aktivitet))', function(err) {
-                      if (err) {
-                        throw err;
-                      }
-                      // Nothing went wrong release connection
-                      connection.release();
-                    });
-                });
-            });
-        });
-    });
+    connection.query('CREATE TABLE IF NOT EXISTS groups(' +
+      'id INT NOT NULL PRIMARY KEY,' +
+      'name TEXT NOT NULL)', function(err) {
+        if (err) {
+          throw err;
+        }
+        connection.query('CREATE TABLE IF NOT EXISTS classes(' +
+          'id INT NOT NULL PRIMARY KEY,' +
+          'day INT NOT NULL,' +
+          'time CHAR(5) NOT NULL,' +
+          'groupid INT NOT NULL,' +
+          'startTime BIGINT NOT NULL,' +
+          'lediga INT NOT NULL,' +
+          'bokningsbara INT NOT NULL,' +
+          'totalt INT NOT NULL,' +
+          'aktivitet VARCHAR(50) NOT NULL,' +
+          'lokal TEXT NOT NULL,' +
+          'resurs TEXT NOT NULL,' +
+          'score INT NOT NULL,' +
+          'ny BOOL NOT NULL)', function(err) {
+            if (err) {
+              throw err;
+            }
+            connection.query('CREATE TABLE IF NOT EXISTS class_data(' +
+              'id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,' +
+              'classid INT NOT NULL,' +
+              'time BIGINT NOT NULL,' +
+              'lediga INT NOT NULL,' +
+              'bokningsbara INT NOT NULL,' +
+              'waitinglistsize INT NOT NULL,' +
+              'totalt INT NOT NULL,' +
+              'INDEX(classid))', function(err) {
+                if (err) {
+                  throw err;
+                }
+                // TODO Can this table be merged together with classes?
+                connection.query('CREATE TABLE IF NOT EXISTS scores(' +
+                  'day INT NOT NULL,' +
+                  'time CHAR(5) NOT NULL,' +
+                  'startTime BIGINT NOT NULL,' +
+                  'aktivitet VARCHAR(50) NOT NULL,' +
+                  'groupid INT NOT NULL,' +
+                  'score INT NOT NULL,' +
+                  'lediga INT NOT NULL,' +
+                  'bokningsbara INT NOT NULL,' +
+                  'totalt INT NOT NULL,' +
+                  'lokal TEXT NOT NULL,' +
+                  'resurs TEXT NOT NULL,' +
+                  'PRIMARY KEY (day, time, aktivitet))', function(err) {
+                    if (err) {
+                      throw err;
+                    }
+                    // Nothing went wrong release connection
+                    connection.release();
+                    callback();
+                  });
+              });
+          });
+      });
   });
 }
-initDB();
+
+var mustCall = setTimeout(function() {
+  throw 'Must call init in DB';
+}, 1000);
+
+exports.init = function(callback) {
+  clearTimeout(mustCall);
+  createDB(function(err) {
+    if (err) {
+      throw err;
+    }
+    createTables(callback);
+  });
+};
 
 exports.saveData = function(data, callback) {
   var id = parseInt(data.id, 10);
@@ -111,7 +142,7 @@ exports.saveData = function(data, callback) {
         return callback(err);
       }
       // Get score of the class
-      connection.query('SELECT score FROM datastil.scores WHERE day = ' + mysql.escape(day) + ' AND time = ' + mysql.escape(time) + ' AND aktivitet = ' + mysql.escape(aktivitet), function(err, result) {
+      connection.query('SELECT score FROM scores WHERE day = ' + mysql.escape(day) + ' AND time = ' + mysql.escape(time) + ' AND aktivitet = ' + mysql.escape(aktivitet), function(err, result) {
         if (err) {
           console.log('Scores', err);
         }
@@ -122,7 +153,7 @@ exports.saveData = function(data, callback) {
           ny = 0;
         }
         // Update groups
-        connection.query('INSERT INTO datastil.groups SET ? ON DUPLICATE KEY UPDATE ' + mysql.escape({
+        connection.query('INSERT INTO groups SET ? ON DUPLICATE KEY UPDATE ' + mysql.escape({
           name: data.group
         }), {
           id: groupid,
@@ -132,7 +163,7 @@ exports.saveData = function(data, callback) {
             console.log('Groups', err);
           }
           // Update classes
-          connection.query('INSERT INTO datastil.classes SET ? ON DUPLICATE KEY UPDATE ' + mysql.escape({
+          connection.query('INSERT INTO classes SET ? ON DUPLICATE KEY UPDATE ' + mysql.escape({
             groupid: groupid,
             day: day,
             time: time,
@@ -164,7 +195,7 @@ exports.saveData = function(data, callback) {
               console.log('Classes', err);
             }
             // Add data
-            connection.query('INSERT INTO datastil.class_data SET ?', {
+            connection.query('INSERT INTO class_data SET ?', {
                 classid: id,
                 time: currentTime,
                 lediga: lediga,
@@ -197,7 +228,7 @@ exports.updateScores = function() {
       connection.release();
       return;
     }
-    connection.query('SELECT id, day, time, startTime, groupid, aktivitet, lokal, resurs FROM datastil.classes WHERE startTime < ' + mysql.escape(currentTime) + ' ORDER BY startTime ASC', function(err, result) {
+    connection.query('SELECT id, day, time, startTime, groupid, aktivitet, lokal, resurs FROM classes WHERE startTime < ' + mysql.escape(currentTime) + ' ORDER BY startTime ASC', function(err, result) {
       if (err) {
         console.log('UpdateScores1', err);
       }
@@ -231,7 +262,7 @@ exports.updateScores = function() {
             score = Math.round(score);
 
             // Update score
-            connection.query('INSERT INTO datastil.scores SET ? ON DUPLICATE KEY UPDATE ' + mysql.escape({
+            connection.query('INSERT INTO scores SET ? ON DUPLICATE KEY UPDATE ' + mysql.escape({
               startTime: item.startTime,
               groupid: item.groupid,
               score: score,
@@ -257,13 +288,13 @@ exports.updateScores = function() {
                 return callback(err);
               }
               // Delete data
-              connection.query('DELETE FROM datastil.classes WHERE ?', {
+              connection.query('DELETE FROM classes WHERE ?', {
                 id: item.id
               }, function(err, result) {
                 if (err) {
                   return callback(err);
                 }
-                connection.query('DELETE FROM datastil.class_data WHERE ?', {
+                connection.query('DELETE FROM class_data WHERE ?', {
                   classid: item.id
                 }, callback);
               });
@@ -289,7 +320,7 @@ exports.mergeData = function(limit) {
       connection.release();
       return;
     }
-    connection.query('SELECT id FROM datastil.classes', function(err, result) {
+    connection.query('SELECT id FROM classes', function(err, result) {
       if (err) {
         console.log('MergeData1', err);
       }
@@ -302,7 +333,7 @@ exports.mergeData = function(limit) {
         prevTime = new Date().getTime() - limit;
       }
       async.eachSeries(result, function(item, callback) {
-        connection.query('SELECT id, lediga, bokningsbara, waitinglistsize, totalt FROM datastil.class_data WHERE classid = ' + mysql.escape(item.id) + ' AND time >= ' + mysql.escape(prevTime) + ' ORDER BY time ASC', function(err, result) {
+        connection.query('SELECT id, lediga, bokningsbara, waitinglistsize, totalt FROM class_data WHERE classid = ' + mysql.escape(item.id) + ' AND time >= ' + mysql.escape(prevTime) + ' ORDER BY time ASC', function(err, result) {
           if (err) {
             return callback(err);
           }
@@ -331,7 +362,7 @@ exports.mergeData = function(limit) {
             }
             // Remove unnecesary data
             if (remove.length > 0) {
-              connection.query('DELETE FROM datastil.class_data WHERE id IN (' + mysql.escape(remove) + ')', callback);
+              connection.query('DELETE FROM class_data WHERE id IN (' + mysql.escape(remove) + ')', callback);
             } else {
               callback(null);
             }
@@ -350,7 +381,7 @@ exports.mergeData = function(limit) {
 
 exports.getGroups = function(callback) {
   pool.getConnection(function(err, connection) {
-    connection.query('SELECT id, name FROM datastil.groups', function(err, result) {
+    connection.query('SELECT id, name FROM groups', function(err, result) {
       connection.release();
       callback(err, result);
     });
@@ -359,7 +390,7 @@ exports.getGroups = function(callback) {
 
 exports.getClasses = function(id, filter, callback) {
   var currentTime = new Date().getTime();
-  var query = 'SELECT id, day, time, groupid, startTime, lediga, bokningsbara, totalt, aktivitet, lokal, resurs, score, ny FROM datastil.classes WHERE startTime >= ' + mysql.escape(currentTime);
+  var query = 'SELECT id, day, time, groupid, startTime, lediga, bokningsbara, totalt, aktivitet, lokal, resurs, score, ny FROM classes WHERE startTime >= ' + mysql.escape(currentTime);
   if (filter.length > 0) {
     query += ' AND groupid IN (' + mysql.escape(filter) + ')';
   }
@@ -374,7 +405,7 @@ exports.getClasses = function(id, filter, callback) {
 
 exports.getClassData = function(id, callback) {
   pool.getConnection(function(err, connection) {
-    connection.query('SELECT time, lediga, bokningsbara, waitinglistsize, totalt FROM datastil.class_data WHERE classid = ' + mysql.escape(id) + ' ORDER BY time ASC', function(err, result) {
+    connection.query('SELECT time, lediga, bokningsbara, waitinglistsize, totalt FROM class_data WHERE classid = ' + mysql.escape(id) + ' ORDER BY time ASC', function(err, result) {
       connection.release();
       callback(err, result);
     });
@@ -383,7 +414,7 @@ exports.getClassData = function(id, callback) {
 
 exports.getClassInfo = function(id, callback) {
   pool.getConnection(function(err, connection) {
-    connection.query('SELECT id, day, time, groupid, startTime, lediga, bokningsbara, totalt, aktivitet, lokal, resurs, score, ny FROM datastil.classes WHERE id = ' + mysql.escape(id), function(err, result) {
+    connection.query('SELECT id, day, time, groupid, startTime, lediga, bokningsbara, totalt, aktivitet, lokal, resurs, score, ny FROM classes WHERE id = ' + mysql.escape(id), function(err, result) {
       connection.release();
       callback(err, result[0]);
     });
@@ -392,7 +423,7 @@ exports.getClassInfo = function(id, callback) {
 
 exports.getScores = function(callback) {
   pool.getConnection(function(err, connection) {
-    connection.query('SELECT day, time, startTime, aktivitet, groupid, score, lediga, bokningsbara, totalt, lokal, resurs FROM datastil.scores ORDER BY score ASC', function(err, result) {
+    connection.query('SELECT day, time, startTime, aktivitet, groupid, score, lediga, bokningsbara, totalt, lokal, resurs FROM scores ORDER BY score ASC', function(err, result) {
       connection.release();
       callback(err, result);
     });
