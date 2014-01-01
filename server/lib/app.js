@@ -16,7 +16,7 @@ var job3 = new cronJob('2 * * * *', function() {
   if (new Date().getHours() === 2) {
     db.mergeData(-1); // Full scan at 2:02
   } else {
-    db.mergeData(600000); // Include 10 min old data
+    db.mergeData(4200000); // Include 10 min old data
   }
 });
 
