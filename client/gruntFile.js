@@ -13,10 +13,37 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-jsbeautifier');
 
   // Default task.
-  grunt.registerTask('default', ['jshint', 'jsbeautifier:default', 'build', 'karma:unit']);
-  grunt.registerTask('build', ['env:dev', 'clean', 'html2js', 'concat', 'preprocess', 'recess:build', 'copy:assets']);
-  grunt.registerTask('release', ['env:prod', 'clean', 'html2js', 'uglify', 'jshint', 'jsbeautifier:release', 'preprocess', 'recess:min', 'copy:assets', 'karma:unit']);
-  grunt.registerTask('test-watch', ['karma:watch']);
+  grunt.registerTask('default', [
+    'jshint',
+    'jsbeautifier:default',
+    'build',
+    'karma:unit'
+  ]);
+  grunt.registerTask('build', [
+    'env:dev',
+    'clean:all',
+    'html2js',
+    'concat',
+    'preprocess',
+    'recess:build',
+    'copy:assets'
+  ]);
+  grunt.registerTask('release', [
+    'env:prod',
+    'clean:all',
+    'html2js',
+    'uglify',
+    'jshint',
+    'jsbeautifier:release',
+    'preprocess',
+    'recess:min',
+    'copy:assets',
+    'clean:post-prod',
+    'karma:unit'
+  ]);
+  grunt.registerTask('test-watch', [
+    'karma:watch'
+  ]);
 
   // Print a timestamp (useful for when watching)
   grunt.registerTask('timestamp', function() {
@@ -56,7 +83,10 @@ module.exports = function(grunt) {
       css: ['src/css/stylesheet.css'], // recess:build doesn't accept ** in its file patterns
       cssWatch: ['src/css/**/*.css']
     },
-    clean: ['<%= distdir %>/*'],
+    clean: {
+      all: ['<%= distdir %>/*'],
+      'post-prod': ['<%= distdir %>/templates/', '<%= distdir %>/fonts/']
+    },
     copy: {
       assets: {
         files: [{

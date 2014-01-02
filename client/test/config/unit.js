@@ -12,8 +12,7 @@ files = [
   'vendor/bootstrap/*.js',
   'vendor/nvd3/*.js',
   'src/**/*.js',
-  'test/unit/**/*.spec.js',
-  'dist/templates/**/*.js'
+  'test/unit/**/*.spec.js'
 ];
 
 // use dots reporter, as travis terminal does not support escaping sequences
