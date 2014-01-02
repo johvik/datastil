@@ -22,6 +22,7 @@ angular.module('info', ['services.classdata', 'nvd3ChartDirectives'], ['$routePr
 angular.module('info').controller('InfoCtrl', ['$scope', '$filter', 'data', 'info',
   function($scope, $filter, data, info) {
     $scope.data = [{
+      key: 'Available',
       values: data
     }];
     $scope.info = info;
