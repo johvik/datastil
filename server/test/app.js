@@ -4,6 +4,7 @@ var app = require('../');
 var config = require('../config_test.js');
 
 var fs = require('fs');
+var path = require('path');
 var request = require('superagent');
 var should = require('should');
 
@@ -12,7 +13,7 @@ describe('Request index.html', function() {
   var indexContent;
 
   before(function(done) {
-    indexContent = fs.readFileSync('../client/dist/index.html').toString();
+    indexContent = fs.readFileSync(path.join(__dirname, '..', '..', 'client', 'dist', 'index.html')).toString();
     // Give server time to start
     setTimeout(done, 250);
   });
