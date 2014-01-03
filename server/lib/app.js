@@ -6,7 +6,7 @@ var data = require('./data');
 var db = require('./db');
 
 // Run every 5 min
-var job1 = new cronJob('*/5 * * * *', data.update);
+var job1 = new cronJob('*/5 * * * *', data.fetchData);
 
 // Run every night at 3:33
 var job2 = new cronJob('33 3 * * *', db.updateScores);

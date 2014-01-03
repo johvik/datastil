@@ -8,6 +8,21 @@ var pool = mysql.createPool({
   database: config.DB
 });
 
+// Wrapper to get a pool connection and release before callback
+function poolQuery(query, callback) {
+  // callback(err, res)
+  pool.getConnection(function(err, connection) {
+    if (err) {
+      connection.release();
+      return callback(err);
+    }
+    connection.query(query, function(err, res) {
+      connection.release();
+      return callback(err, res);
+    });
+  });
+}
+
 function createDB(callback) {
   if (!config.DB) {
     throw 'No DB in config.js';
@@ -110,113 +125,46 @@ exports.init = function(callback) {
   });
 };
 
-exports.saveData = function(data, callback) {
-  var id = parseInt(data.id, 10);
-  var groupid = parseInt(data.groupid, 10);
-  var startTime = parseInt(data.startTime, 10);
-  var lediga = parseInt(data.lediga, 10);
-  var bokningsbara = parseInt(data.bokningsbara, 10);
-  var waitinglistsize = parseInt(data.waitinglistsize, 10);
-  var totalt = parseInt(data.totalt, 10);
-  if (!isNaN(id) && 'group' in data && !isNaN(groupid) && 'startTimeDT' in data && !isNaN(startTime) && 'aktivitet' in data && 'lokal' in data && 'resurs' in data && !isNaN(lediga) && !isNaN(bokningsbara) && !isNaN(waitinglistsize) && !isNaN(totalt)) {
-    var currentTime = new Date().getTime();
-    // Make sure it hasn't occured yet
-    if (startTime < currentTime) {
-      return callback(null);
-    }
-    // Do not store data if it is more than 10 days left
-    if ((startTime - currentTime) > 86400000 * 10) {
-      return callback(null);
-    }
-    var date = new Date(startTime);
-    var day = date.getDay();
-    // var time = date.getHours() + ':' + date.getMinutes();
-    // startTimeDT has format 2013-11-30T10:00:00
-    var index = data.startTimeDT.indexOf('T');
-    var time = data.startTimeDT.substring(index + 1, index + 6);
-    var aktivitet = data.aktivitet.substring(0, 50); // Max 50 chars
-    pool.getConnection(function(err, connection) {
+exports.getScore = function(day, time, aktivitet, callback) {
+  // callback(err, score, isnew)
+  poolQuery('SELECT score FROM scores WHERE day = ' +
+    pool.escape(day) + ' AND time = ' +
+    pool.escape(time) + ' AND aktivitet = ' +
+    pool.escape(aktivitet), function(err, res) {
       if (err) {
-        // No connection
-        connection.release();
         return callback(err);
       }
-      // Get score of the class
-      connection.query('SELECT score FROM scores WHERE day = ' + mysql.escape(day) + ' AND time = ' + mysql.escape(time) + ' AND aktivitet = ' + mysql.escape(aktivitet), function(err, result) {
-        if (err) {
-          console.log('Scores', err);
-        }
-        var score = 0;
-        var ny = 1;
-        if (result && result.length > 0) {
-          score = result[0].score;
-          ny = 0;
-        }
-        // Update groups
-        connection.query('INSERT INTO groups SET ? ON DUPLICATE KEY UPDATE ' + mysql.escape({
-          name: data.group
-        }), {
-          id: groupid,
-          name: data.group
-        }, function(err, result) {
-          if (err) {
-            console.log('Groups', err);
-          }
-          // Update classes
-          connection.query('INSERT INTO classes SET ? ON DUPLICATE KEY UPDATE ' + mysql.escape({
-            groupid: groupid,
-            day: day,
-            time: time,
-            startTime: startTime,
-            lediga: lediga,
-            bokningsbara: bokningsbara,
-            totalt: totalt,
-            aktivitet: aktivitet,
-            lokal: data.lokal,
-            resurs: data.resurs,
-            score: score,
-            ny: ny
-          }), {
-            id: id,
-            groupid: groupid,
-            day: day,
-            time: time,
-            startTime: startTime,
-            lediga: lediga,
-            bokningsbara: bokningsbara,
-            totalt: totalt,
-            aktivitet: aktivitet,
-            lokal: data.lokal,
-            resurs: data.resurs,
-            score: score,
-            ny: ny
-          }, function(err, result) {
-            if (err) {
-              console.log('Classes', err);
-            }
-            // Add data
-            connection.query('INSERT INTO class_data SET ?', {
-                classid: id,
-                time: currentTime,
-                lediga: lediga,
-                bokningsbara: bokningsbara,
-                waitinglistsize: waitinglistsize,
-                totalt: totalt
-              },
-              function(err, result) {
-                if (err) {
-                  console.log('Data', err);
-                }
-                connection.release();
-                callback(err);
-              });
-          });
-        });
-      });
+      if (res && res.length > 0) {
+        return callback(null, res[0].score, 0);
+      }
+      // Nothing found
+      return callback(null, 0, 1);
     });
-  } else {
-    callback('Fields are missing...');
-  }
+};
+
+exports.saveGroup = function(data, callback) {
+  // data{id, name}
+  // callback(err)
+  var escaped = pool.escape(data);
+  poolQuery('INSERT INTO groups SET ' + escaped +
+    ' ON DUPLICATE KEY UPDATE ' + escaped, callback);
+};
+
+exports.saveClass = function(data, callback) {
+  // data{id, groupid, day, time, startTime, lediga,
+  //      bokningsbara, totalt, aktivitet, lokal,
+  //      resurs, score, ny}
+  // callback(err)
+  var escaped = pool.escape(data);
+  poolQuery('INSERT INTO classes SET ' + escaped +
+    ' ON DUPLICATE KEY UPDATE ' + escaped, callback);
+};
+
+exports.insertClassData = function(data, callback) {
+  // data{classid, time, lediga, bokningsbara,
+  //      waitinglistsize, totalt}
+  // callback(err)
+  poolQuery('INSERT INTO class_data SET ' + pool.escape(data), callback);
 };
 
 exports.updateScores = function() {
