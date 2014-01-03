@@ -193,3 +193,59 @@ exports.updateScores = function() {
     });
   });
 };
+
+exports.mergeData = function(limit) {
+  // Use a negative limit to go through all
+  db.getClassIds(function(err, result) {
+    if (err) {
+      console.log('MergeData1', err);
+      return;
+    }
+    // Add extra limit
+    var prevTime;
+    if (limit < 0) {
+      // Go through all
+      prevTime = 0;
+    } else {
+      prevTime = new Date().getTime() - limit;
+    }
+    async.eachSeries(result, function(item, callback) {
+      db.getClassDataForMerge(item.id, prevTime, function(err, result) {
+        if (err) {
+          return callback(err);
+        }
+        var length = result.length;
+        if (length >= 3) {
+          var prev = result[0];
+          var remove = []; // ids to remove
+
+          // Skip first and last
+          for (var i = 1; i < length - 1; i++) {
+            var curr = result[i];
+            var next = result[i + 1];
+            // Compare to prev and next
+            if (curr.lediga === prev.lediga &&
+              curr.bokningsbara === prev.bokningsbara &&
+              curr.waitinglistsize === prev.waitinglistsize &&
+              curr.totalt === prev.totalt &&
+              curr.lediga === next.lediga &&
+              curr.bokningsbara === next.bokningsbara &&
+              curr.waitinglistsize === next.waitinglistsize &&
+              curr.totalt === next.totalt) {
+              // All three are equal, remove middle element
+              remove.push(curr.id);
+            }
+            prev = curr;
+          }
+          // Remove unnecesary data
+          return db.removeClassData(remove, callback);
+        } else {
+          // Do nothing
+          return callback(null);
+        }
+      });
+    }, function(err) {
+      console.log('MergeData2 ' + new Date(), prevTime, err);
+    });
+  });
+};

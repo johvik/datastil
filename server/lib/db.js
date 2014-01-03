@@ -199,74 +199,25 @@ exports.deleteClass = function(id, callback) {
   });
 };
 
-exports.mergeData = function(limit) {
-  // Use a negative limit to go through all
-  pool.getConnection(function(err, connection) {
-    if (err) {
-      // No connection
-      connection.release();
-      return;
-    }
-    connection.query('SELECT id FROM classes', function(err, result) {
-      if (err) {
-        console.log('MergeData1', err);
-      }
-      // Add extra limit
-      var prevTime;
-      if (limit < 0) {
-        // Go through all
-        prevTime = 0;
-      } else {
-        prevTime = new Date().getTime() - limit;
-      }
-      async.eachSeries(result, function(item, callback) {
-        connection.query('SELECT id, lediga, bokningsbara, waitinglistsize, totalt FROM class_data WHERE classid = ' +
-          pool.escape(item.id) + ' AND time >= ' +
-          pool.escape(prevTime) + ' ORDER BY time ASC', function(err, result) {
-            if (err) {
-              return callback(err);
-            }
-            var length = result.length;
-            if (length >= 3) {
-              var prev = result[0];
-              var remove = []; // ids to remove
+exports.getClassIds = function(callback) {
+  // callback(err, res)
+  poolQuery('SELECT id FROM classes', callback);
+};
 
-              // Skip first and last
-              for (var i = 1; i < length - 1; i++) {
-                var curr = result[i];
-                var next = result[i + 1];
-                // Compare to prev and next
-                if (curr.lediga === prev.lediga &&
-                  curr.bokningsbara === prev.bokningsbara &&
-                  curr.waitinglistsize === prev.waitinglistsize &&
-                  curr.totalt === prev.totalt &&
-                  curr.lediga === next.lediga &&
-                  curr.bokningsbara === next.bokningsbara &&
-                  curr.waitinglistsize === next.waitinglistsize &&
-                  curr.totalt === next.totalt) {
-                  // All three are equal, remove middle element
-                  remove.push(curr.id);
-                }
-                prev = curr;
-              }
-              // Remove unnecesary data
-              if (remove.length > 0) {
-                connection.query('DELETE FROM class_data WHERE id IN (' +
-                  pool.escape(remove) + ')', callback);
-              } else {
-                callback(null);
-              }
-            } else {
-              // Do nothing
-              callback(null);
-            }
-          });
-      }, function(err) {
-        connection.release();
-        console.log('MergeData2 ' + new Date(), prevTime, err);
-      });
-    });
-  });
+exports.getClassDataForMerge = function(id, time, callback) {
+  // callback(err, res)
+  poolQuery('SELECT id, lediga, bokningsbara, waitinglistsize, totalt FROM class_data WHERE classid = ' +
+    pool.escape(id) + ' AND time >= ' +
+    pool.escape(time) + ' ORDER BY time ASC', callback);
+};
+
+exports.removeClassData = function(ids, callback) {
+  // callback(err)
+  if (ids.length <= 0) {
+    return callback(null);
+  }
+  poolQuery('DELETE FROM class_data WHERE id IN (' +
+    pool.escape(ids) + ')', callback);
 };
 
 exports.getGroups = function(callback) {

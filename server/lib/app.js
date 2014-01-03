@@ -14,9 +14,9 @@ var job2 = new cronJob('33 3 * * *', data.updateScores);
 // Run every hour
 var job3 = new cronJob('2 * * * *', function() {
   if (new Date().getHours() === 2) {
-    db.mergeData(-1); // Full scan at 2:02
+    data.mergeData(-1); // Full scan at 2:02
   } else {
-    db.mergeData(4200000); // Include 10 min old data
+    data.mergeData(4200000); // Include 10 min old data
   }
 });
 
