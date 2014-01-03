@@ -167,97 +167,35 @@ exports.insertClassData = function(data, callback) {
   poolQuery('INSERT INTO class_data SET ' + pool.escape(data), callback);
 };
 
-exports.updateScores = function() {
-  // Add 10 min margin
-  var currentTime = new Date().getTime() - 600000;
-  pool.getConnection(function(err, connection) {
+exports.getClassesForUpdate = function(callback) {
+  // Add 10 min margin and get all classes that has occured
+  // callback(err, res)
+  var time = new Date().getTime() - 600000;
+  poolQuery('SELECT id, day, time, startTime, groupid, aktivitet, lokal, resurs FROM classes WHERE startTime < ' +
+    pool.escape(time) + ' ORDER BY startTime ASC', callback);
+};
+
+exports.saveScore = function(data, callback) {
+  // data{day, time, startTime, aktivitet, groupid, score,
+  //      lediga, bokningsbara, totalt, lokal, resurs}
+  // callback(err)
+  var escaped = pool.escape(data);
+  poolQuery('INSERT INTO scores SET ' + escaped +
+    ' ON DUPLICATE KEY UPDATE ' + escaped, callback);
+};
+
+exports.deleteClass = function(id, callback) {
+  // callback(err)
+  poolQuery('DELETE FROM classes WHERE ' + pool.escape({
+    id: id
+  }), function(err) {
     if (err) {
-      // No connection
-      connection.release();
-      return;
+      return callback(err);
     }
-    connection.query('SELECT id, day, time, startTime, groupid, aktivitet, lokal, resurs FROM classes WHERE startTime < ' +
-      pool.escape(currentTime) + ' ORDER BY startTime ASC', function(err, result) {
-        if (err) {
-          console.log('UpdateScores1', err);
-        }
-        async.eachSeries(result, function(item, callback) {
-          exports.getClassData(item.id, function(err, result) {
-            if (err) {
-              return callback(err);
-            }
-            var length = result.length;
-            if (length > 0) {
-              var dt;
-              var last = result[length - 1];
-              var prev = result[0];
-              var score = prev.lediga - prev.waitinglistsize;
-              for (var i = 1; i < length; i++) {
-                var curr = result[i];
-                dt = (curr.time - prev.time) / 60000; // minutes
-                score += (curr.lediga - curr.waitinglistsize) * dt;
-                prev = curr;
-              }
-
-              // Extend last if data is missing
-              if (last.time < item.startTime) {
-                dt = (item.startTime - last.time) / 60000; // minutes
-                score += (last.lediga - last.waitinglistsize) * dt;
-              }
-
-              if (last.totalt !== 0) {
-                score = score / last.totalt;
-              }
-              score = Math.round(score);
-
-              // Update score
-              connection.query('INSERT INTO scores SET ? ON DUPLICATE KEY UPDATE ' + pool.escape({
-                startTime: item.startTime,
-                groupid: item.groupid,
-                score: score,
-                lediga: last.lediga,
-                bokningsbara: (last.bokningsbara - last.waitinglistsize),
-                totalt: last.totalt,
-                lokal: item.lokal,
-                resurs: item.resurs
-              }), {
-                day: item.day,
-                time: item.time,
-                startTime: item.startTime,
-                aktivitet: item.aktivitet,
-                groupid: item.groupid,
-                score: score,
-                lediga: last.lediga,
-                bokningsbara: (last.bokningsbara - last.waitinglistsize),
-                totalt: last.totalt,
-                lokal: item.lokal,
-                resurs: item.resurs
-              }, function(err, result) {
-                if (err) {
-                  return callback(err);
-                }
-                // Delete data
-                connection.query('DELETE FROM classes WHERE ?', {
-                  id: item.id
-                }, function(err, result) {
-                  if (err) {
-                    return callback(err);
-                  }
-                  connection.query('DELETE FROM class_data WHERE ?', {
-                    classid: item.id
-                  }, callback);
-                });
-              });
-            } else {
-              // Do nothing
-              callback(null);
-            }
-          });
-        }, function(err) {
-          connection.release();
-          console.log('UpdateScores2 ' + new Date(), err);
-        });
-      });
+    // Also delete its data
+    poolQuery('DELETE FROM class_data WHERE ' + pool.escape({
+      classid: id
+    }), callback);
   });
 };
 

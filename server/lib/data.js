@@ -127,3 +127,69 @@ exports.fetchData = function() {
     }
   );
 };
+
+exports.updateScores = function() {
+  db.getClassesForUpdate(function(err, result) {
+    if (err) {
+      console.log('UpdateScores1', err);
+      return;
+    }
+    async.eachSeries(result, function(item, callback) {
+      db.getClassData(item.id, function(err, result) {
+        if (err) {
+          return callback(err);
+        }
+        var length = result.length;
+        if (length > 0) {
+          var dt;
+          var last = result[length - 1];
+          var prev = result[0];
+          var score = prev.lediga - prev.waitinglistsize;
+          for (var i = 1; i < length; i++) {
+            var curr = result[i];
+            dt = (curr.time - prev.time) / 60000; // minutes
+            score += (curr.lediga - curr.waitinglistsize) * dt;
+            prev = curr;
+          }
+
+          // Extend last if data is missing
+          if (last.time < item.startTime) {
+            dt = (item.startTime - last.time) / 60000; // minutes
+            score += (last.lediga - last.waitinglistsize) * dt;
+          }
+
+          if (last.totalt !== 0) {
+            score = score / last.totalt;
+          }
+          score = Math.round(score);
+
+          // Update score
+          db.saveScore({
+            day: item.day,
+            time: item.time,
+            startTime: item.startTime,
+            aktivitet: item.aktivitet,
+            groupid: item.groupid,
+            score: score,
+            lediga: last.lediga,
+            bokningsbara: (last.bokningsbara - last.waitinglistsize),
+            totalt: last.totalt,
+            lokal: item.lokal,
+            resurs: item.resurs
+          }, function(err) {
+            if (err) {
+              return callback(err);
+            }
+            // Delete data
+            db.deleteClass(item.id, callback);
+          });
+        } else {
+          // Do nothing
+          callback(null);
+        }
+      });
+    }, function(err) {
+      console.log('UpdateScores2 ' + new Date(), err);
+    });
+  });
+};
