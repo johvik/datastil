@@ -176,87 +176,88 @@ exports.updateScores = function() {
       connection.release();
       return;
     }
-    connection.query('SELECT id, day, time, startTime, groupid, aktivitet, lokal, resurs FROM classes WHERE startTime < ' + mysql.escape(currentTime) + ' ORDER BY startTime ASC', function(err, result) {
-      if (err) {
-        console.log('UpdateScores1', err);
-      }
-      async.eachSeries(result, function(item, callback) {
-        exports.getClassData(item.id, function(err, result) {
-          if (err) {
-            return callback(err);
-          }
-          var length = result.length;
-          if (length > 0) {
-            var dt;
-            var last = result[length - 1];
-            var prev = result[0];
-            var score = prev.lediga - prev.waitinglistsize;
-            for (var i = 1; i < length; i++) {
-              var curr = result[i];
-              dt = (curr.time - prev.time) / 60000; // minutes
-              score += (curr.lediga - curr.waitinglistsize) * dt;
-              prev = curr;
+    connection.query('SELECT id, day, time, startTime, groupid, aktivitet, lokal, resurs FROM classes WHERE startTime < ' +
+      pool.escape(currentTime) + ' ORDER BY startTime ASC', function(err, result) {
+        if (err) {
+          console.log('UpdateScores1', err);
+        }
+        async.eachSeries(result, function(item, callback) {
+          exports.getClassData(item.id, function(err, result) {
+            if (err) {
+              return callback(err);
             }
-
-            // Extend last if data is missing
-            if (last.time < item.startTime) {
-              dt = (item.startTime - last.time) / 60000; // minutes
-              score += (last.lediga - last.waitinglistsize) * dt;
-            }
-
-            if (last.totalt !== 0) {
-              score = score / last.totalt;
-            }
-            score = Math.round(score);
-
-            // Update score
-            connection.query('INSERT INTO scores SET ? ON DUPLICATE KEY UPDATE ' + mysql.escape({
-              startTime: item.startTime,
-              groupid: item.groupid,
-              score: score,
-              lediga: last.lediga,
-              bokningsbara: (last.bokningsbara - last.waitinglistsize),
-              totalt: last.totalt,
-              lokal: item.lokal,
-              resurs: item.resurs
-            }), {
-              day: item.day,
-              time: item.time,
-              startTime: item.startTime,
-              aktivitet: item.aktivitet,
-              groupid: item.groupid,
-              score: score,
-              lediga: last.lediga,
-              bokningsbara: (last.bokningsbara - last.waitinglistsize),
-              totalt: last.totalt,
-              lokal: item.lokal,
-              resurs: item.resurs
-            }, function(err, result) {
-              if (err) {
-                return callback(err);
+            var length = result.length;
+            if (length > 0) {
+              var dt;
+              var last = result[length - 1];
+              var prev = result[0];
+              var score = prev.lediga - prev.waitinglistsize;
+              for (var i = 1; i < length; i++) {
+                var curr = result[i];
+                dt = (curr.time - prev.time) / 60000; // minutes
+                score += (curr.lediga - curr.waitinglistsize) * dt;
+                prev = curr;
               }
-              // Delete data
-              connection.query('DELETE FROM classes WHERE ?', {
-                id: item.id
+
+              // Extend last if data is missing
+              if (last.time < item.startTime) {
+                dt = (item.startTime - last.time) / 60000; // minutes
+                score += (last.lediga - last.waitinglistsize) * dt;
+              }
+
+              if (last.totalt !== 0) {
+                score = score / last.totalt;
+              }
+              score = Math.round(score);
+
+              // Update score
+              connection.query('INSERT INTO scores SET ? ON DUPLICATE KEY UPDATE ' + pool.escape({
+                startTime: item.startTime,
+                groupid: item.groupid,
+                score: score,
+                lediga: last.lediga,
+                bokningsbara: (last.bokningsbara - last.waitinglistsize),
+                totalt: last.totalt,
+                lokal: item.lokal,
+                resurs: item.resurs
+              }), {
+                day: item.day,
+                time: item.time,
+                startTime: item.startTime,
+                aktivitet: item.aktivitet,
+                groupid: item.groupid,
+                score: score,
+                lediga: last.lediga,
+                bokningsbara: (last.bokningsbara - last.waitinglistsize),
+                totalt: last.totalt,
+                lokal: item.lokal,
+                resurs: item.resurs
               }, function(err, result) {
                 if (err) {
                   return callback(err);
                 }
-                connection.query('DELETE FROM class_data WHERE ?', {
-                  classid: item.id
-                }, callback);
+                // Delete data
+                connection.query('DELETE FROM classes WHERE ?', {
+                  id: item.id
+                }, function(err, result) {
+                  if (err) {
+                    return callback(err);
+                  }
+                  connection.query('DELETE FROM class_data WHERE ?', {
+                    classid: item.id
+                  }, callback);
+                });
               });
-            });
-          } else {
-            // Do nothing
-            callback(null);
-          }
+            } else {
+              // Do nothing
+              callback(null);
+            }
+          });
+        }, function(err) {
+          connection.release();
+          console.log('UpdateScores2 ' + new Date(), err);
         });
-      }, function(err) {
-        connection.release();
-        console.log('UpdateScores2 ' + new Date(), err);
       });
-    });
   });
 };
 
@@ -281,44 +282,47 @@ exports.mergeData = function(limit) {
         prevTime = new Date().getTime() - limit;
       }
       async.eachSeries(result, function(item, callback) {
-        connection.query('SELECT id, lediga, bokningsbara, waitinglistsize, totalt FROM class_data WHERE classid = ' + mysql.escape(item.id) + ' AND time >= ' + mysql.escape(prevTime) + ' ORDER BY time ASC', function(err, result) {
-          if (err) {
-            return callback(err);
-          }
-          var length = result.length;
-          if (length >= 3) {
-            var prev = result[0];
-            var remove = []; // ids to remove
-
-            // Skip first and last
-            for (var i = 1; i < length - 1; i++) {
-              var curr = result[i];
-              var next = result[i + 1];
-              // Compare to prev and next
-              if (curr.lediga === prev.lediga &&
-                curr.bokningsbara === prev.bokningsbara &&
-                curr.waitinglistsize === prev.waitinglistsize &&
-                curr.totalt === prev.totalt &&
-                curr.lediga === next.lediga &&
-                curr.bokningsbara === next.bokningsbara &&
-                curr.waitinglistsize === next.waitinglistsize &&
-                curr.totalt === next.totalt) {
-                // All three are equal, remove middle element
-                remove.push(curr.id);
-              }
-              prev = curr;
+        connection.query('SELECT id, lediga, bokningsbara, waitinglistsize, totalt FROM class_data WHERE classid = ' +
+          pool.escape(item.id) + ' AND time >= ' +
+          pool.escape(prevTime) + ' ORDER BY time ASC', function(err, result) {
+            if (err) {
+              return callback(err);
             }
-            // Remove unnecesary data
-            if (remove.length > 0) {
-              connection.query('DELETE FROM class_data WHERE id IN (' + mysql.escape(remove) + ')', callback);
+            var length = result.length;
+            if (length >= 3) {
+              var prev = result[0];
+              var remove = []; // ids to remove
+
+              // Skip first and last
+              for (var i = 1; i < length - 1; i++) {
+                var curr = result[i];
+                var next = result[i + 1];
+                // Compare to prev and next
+                if (curr.lediga === prev.lediga &&
+                  curr.bokningsbara === prev.bokningsbara &&
+                  curr.waitinglistsize === prev.waitinglistsize &&
+                  curr.totalt === prev.totalt &&
+                  curr.lediga === next.lediga &&
+                  curr.bokningsbara === next.bokningsbara &&
+                  curr.waitinglistsize === next.waitinglistsize &&
+                  curr.totalt === next.totalt) {
+                  // All three are equal, remove middle element
+                  remove.push(curr.id);
+                }
+                prev = curr;
+              }
+              // Remove unnecesary data
+              if (remove.length > 0) {
+                connection.query('DELETE FROM class_data WHERE id IN (' +
+                  pool.escape(remove) + ')', callback);
+              } else {
+                callback(null);
+              }
             } else {
+              // Do nothing
               callback(null);
             }
-          } else {
-            // Do nothing
-            callback(null);
-          }
-        });
+          });
       }, function(err) {
         connection.release();
         console.log('MergeData2 ' + new Date(), prevTime, err);
@@ -328,52 +332,32 @@ exports.mergeData = function(limit) {
 };
 
 exports.getGroups = function(callback) {
-  pool.getConnection(function(err, connection) {
-    connection.query('SELECT id, name FROM groups', function(err, result) {
-      connection.release();
-      callback(err, result);
-    });
-  });
+  poolQuery('SELECT id, name FROM groups', callback);
 };
 
 exports.getClasses = function(id, filter, callback) {
   var currentTime = new Date().getTime();
-  var query = 'SELECT id, day, time, groupid, startTime, lediga, bokningsbara, totalt, aktivitet, lokal, resurs, score, ny FROM classes WHERE startTime >= ' + mysql.escape(currentTime);
+  var query = 'SELECT id, day, time, groupid, startTime, lediga, bokningsbara, totalt, aktivitet, lokal, resurs, score, ny FROM classes WHERE startTime >= ' +
+    pool.escape(currentTime);
   if (filter.length > 0) {
-    query += ' AND groupid IN (' + mysql.escape(filter) + ')';
+    query += ' AND groupid IN (' + pool.escape(filter) + ')';
   }
-  query += ' ORDER BY startTime ASC LIMIT ' + mysql.escape(id * 20) + ',20';
-  pool.getConnection(function(err, connection) {
-    connection.query(query, function(err, result) {
-      connection.release();
-      callback(err, result);
-    });
-  });
+  query += ' ORDER BY startTime ASC LIMIT ' + pool.escape(id * 20) + ',20';
+  poolQuery(query, callback);
 };
 
 exports.getClassData = function(id, callback) {
-  pool.getConnection(function(err, connection) {
-    connection.query('SELECT time, lediga, bokningsbara, waitinglistsize, totalt FROM class_data WHERE classid = ' + mysql.escape(id) + ' ORDER BY time ASC', function(err, result) {
-      connection.release();
-      callback(err, result);
-    });
-  });
+  poolQuery('SELECT time, lediga, bokningsbara, waitinglistsize, totalt FROM class_data WHERE classid = ' +
+    pool.escape(id) + ' ORDER BY time ASC', callback);
 };
 
 exports.getClassInfo = function(id, callback) {
-  pool.getConnection(function(err, connection) {
-    connection.query('SELECT id, day, time, groupid, startTime, lediga, bokningsbara, totalt, aktivitet, lokal, resurs, score, ny FROM classes WHERE id = ' + mysql.escape(id), function(err, result) {
-      connection.release();
-      callback(err, result[0]);
+  poolQuery('SELECT id, day, time, groupid, startTime, lediga, bokningsbara, totalt, aktivitet, lokal, resurs, score, ny FROM classes WHERE id = ' +
+    pool.escape(id), function(err, res) {
+      callback(err, res[0]);
     });
-  });
 };
 
 exports.getScores = function(callback) {
-  pool.getConnection(function(err, connection) {
-    connection.query('SELECT day, time, startTime, aktivitet, groupid, score, lediga, bokningsbara, totalt, lokal, resurs FROM scores ORDER BY score ASC', function(err, result) {
-      connection.release();
-      callback(err, result);
-    });
-  });
+  poolQuery('SELECT day, time, startTime, aktivitet, groupid, score, lediga, bokningsbara, totalt, lokal, resurs FROM scores ORDER BY score ASC', callback);
 };
