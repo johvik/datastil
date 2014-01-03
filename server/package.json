@@ -12,17 +12,17 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "async": ">=0.2.9",
-    "superagent": ">=0.15.7",
-    "mysql": ">=2.0.0-rc2",
-    "cron": ">=1.0.1",
-    "express": ">=3.4.4",
-    "forever": ">=0.10.9"
+    "async": "~0.2.9",
+    "superagent": "~0.15.7",
+    "mysql": "~2.0.0-rc2",
+    "cron": "~1.0.1",
+    "express": "~3.4.4",
+    "forever": "~0.10.9"
   },
   "devDependencies": {
-    "grunt": ">=0.4.2",
-    "grunt-contrib-jshint": ">=0.8.0",
-    "grunt-jsbeautifier": ">=0.2.6"
+    "grunt": "~0.4.2",
+    "grunt-contrib-jshint": "~0.8.0",
+    "grunt-jsbeautifier": "~0.2.6"
   },
   "engine": "node >= 0.10.22"
 }
