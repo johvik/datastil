@@ -2,8 +2,17 @@ var cronJob = require('cron').CronJob;
 var express = require('express');
 var path = require('path');
 var app = express();
-var data = require('./data');
-var db = require('./db');
+var TEST_ENV = process.env.NODE_ENV === 'test';
+var config = TEST_ENV ?
+  require('../config_test') : require('../config');
+
+var db = require('./db')(config);
+var data = require('./data')(db);
+
+// Check config file
+if (!config.USER || !config.PASSWORD || !config.DB || !config.PORT) {
+  throw 'Missing parameters in config file';
+}
 
 // Run every 5 min
 var job1 = new cronJob('*/5 * * * *', data.fetchData);
@@ -36,7 +45,9 @@ app.use('/static', function(req, res, next) {
 });
 app.use(express.bodyParser());
 app.use(express.methodOverride());
-app.use(express.logger('short'));
+if (!TEST_ENV) {
+  app.use(express.logger('short'));
+}
 app.use(app.router);
 
 // Set up routes
@@ -124,13 +135,18 @@ app.all('/*', function(req, res) {
 
 // Let DB init first
 db.init(function() {
-  // Start the server
-  app.listen(9001, function() {
-    console.log('Server started ' + new Date());
-  });
+  if (TEST_ENV) {
+    // Just start server when testing
+    app.listen(config.PORT);
+  } else {
+    // Start the server
+    app.listen(config.PORT, function() {
+      console.log('Server started ' + new Date());
+    });
 
-  // Start cron jobs
-  job1.start();
-  job2.start();
-  job3.start();
+    // Start cron jobs
+    job1.start();
+    job2.start();
+    job3.start();
+  }
 });

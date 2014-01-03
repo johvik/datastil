@@ -14,5 +14,6 @@ results
 node_modules
 dist
 config.js
+config_test.js
 
 .project
