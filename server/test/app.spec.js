@@ -3,23 +3,18 @@ process.env.NODE_ENV = 'test';
 var app = require('../');
 
 var utils = require('./utils');
-var fs = require('fs');
-var path = require('path');
 var request = require('superagent');
 var should = require('should');
 
-var address = utils.address;
-
 describe('Request index.html', function() {
-  var indexContent;
+  var indexContent = utils.getDistFileContent('index.html');
 
   before(function(done) {
-    indexContent = fs.readFileSync(path.join(__dirname, '..', '..', 'client', 'dist', 'index.html')).toString();
     // Give server time to start
     setTimeout(done, 500);
   });
   it('should get root', function(done) {
-    request.get(address + '/').end(function(err, res) {
+    request.get(utils.address + '/').end(function(err, res) {
       should.not.exist(err);
       res.should.have.status(200);
       res.text.should.equal(indexContent);
@@ -28,7 +23,7 @@ describe('Request index.html', function() {
   });
 
   it('should get index.html', function(done) {
-    request.get(address + '/somerandompath').end(function(err, res) {
+    request.get(utils.address + '/somerandompath').end(function(err, res) {
       should.not.exist(err);
       res.should.have.status(200);
       res.text.should.equal(indexContent);
@@ -37,7 +32,7 @@ describe('Request index.html', function() {
   });
 
   it('should del index.html', function(done) {
-    request.del(address + '/some/random/path').end(function(err, res) {
+    request.del(utils.address + '/some/random/path').end(function(err, res) {
       should.not.exist(err);
       res.should.have.status(200);
       res.text.should.equal(indexContent);
@@ -48,17 +43,19 @@ describe('Request index.html', function() {
 
 describe('Request static', function() {
   it('should get datastil.js', function(done) {
-    request.get(address + '/static/datastil.js').end(function(err, res) {
+    request.get(utils.address + '/static/datastil.js').buffer().end(function(err, res) {
       should.not.exist(err);
       res.should.have.status(200);
+      res.text.should.equal(utils.getDistFileContent('datastil.js'));
       done();
     });
   });
 
   it('should get favicon', function(done) {
-    request.get(address + '/favicon.ico').end(function(err, res) {
+    request.get(utils.address + '/favicon.ico').buffer().end(function(err, res) {
       should.not.exist(err);
       res.should.have.status(200);
+      res.text.should.equal(utils.getDistFileContent('favicon.ico'));
       done();
     });
   });
@@ -69,7 +66,7 @@ describe('Request routes (empty)', function() {
   before(utils.DBclear);
 
   it('should get groups', function(done) {
-    request.get(address + '/groups').end(function(err, res) {
+    request.get(utils.address + '/groups').end(function(err, res) {
       should.not.exist(err);
       res.should.have.status(200);
       JSON.parse(res.text).should.eql([]);
@@ -78,7 +75,7 @@ describe('Request routes (empty)', function() {
   });
 
   it('should get classes', function(done) {
-    request.get(address + '/classes/0').end(function(err, res) {
+    request.get(utils.address + '/classes/0').end(function(err, res) {
       should.not.exist(err);
       res.should.have.status(200);
       JSON.parse(res.text).should.eql([]);
@@ -87,7 +84,7 @@ describe('Request routes (empty)', function() {
   });
 
   it('should not get class', function(done) {
-    request.get(address + '/class/0').end(function(err, res) {
+    request.get(utils.address + '/class/0').end(function(err, res) {
       should.not.exist(err);
       res.should.have.status(404);
       done();
@@ -95,7 +92,7 @@ describe('Request routes (empty)', function() {
   });
 
   it('should not get classinfo', function(done) {
-    request.get(address + '/class/0/info').end(function(err, res) {
+    request.get(utils.address + '/class/0/info').end(function(err, res) {
       should.not.exist(err);
       res.should.have.status(404);
       done();
@@ -103,7 +100,7 @@ describe('Request routes (empty)', function() {
   });
 
   it('should get scores', function(done) {
-    request.get(address + '/scores').end(function(err, res) {
+    request.get(utils.address + '/scores').end(function(err, res) {
       should.not.exist(err);
       res.should.have.status(200);
       JSON.parse(res.text).should.eql([]);
@@ -121,7 +118,7 @@ describe('Request routes', function() {
   });
 
   it('should get groups', function(done) {
-    request.get(address + '/groups').end(function(err, res) {
+    request.get(utils.address + '/groups').end(function(err, res) {
       should.not.exist(err);
       res.should.have.status(200);
       JSON.parse(res.text).should.eql([{
@@ -132,7 +129,7 @@ describe('Request routes', function() {
     });
   });
   it('should get classes', function(done) {
-    request.get(address + '/classes/0').end(function(err, res) {
+    request.get(utils.address + '/classes/0').end(function(err, res) {
       should.not.exist(err);
       res.should.have.status(200);
       JSON.parse(res.text).should.eql([{
@@ -155,7 +152,7 @@ describe('Request routes', function() {
   });
 
   it('should get class', function(done) {
-    request.get(address + '/class/123').end(function(err, res) {
+    request.get(utils.address + '/class/123').end(function(err, res) {
       should.not.exist(err);
       res.should.have.status(200);
       JSON.parse(res.text).should.eql([{
@@ -170,7 +167,7 @@ describe('Request routes', function() {
   });
 
   it('should get classinfo', function(done) {
-    request.get(address + '/class/123/info').end(function(err, res) {
+    request.get(utils.address + '/class/123/info').end(function(err, res) {
       should.not.exist(err);
       res.should.have.status(200);
       JSON.parse(res.text).should.eql({
@@ -193,7 +190,7 @@ describe('Request routes', function() {
   });
 
   it('should get scores', function(done) {
-    request.get(address + '/scores').end(function(err, res) {
+    request.get(utils.address + '/scores').end(function(err, res) {
       should.not.exist(err);
       res.should.have.status(200);
       JSON.parse(res.text).should.eql([{

@@ -4,8 +4,16 @@ var config = require('../config_test.js');
 
 var mysql = require('mysql');
 var async = require('async');
+var fs = require('fs');
+var path = require('path');
 
 exports.address = 'http://localhost:' + config.PORT;
+
+exports.distPath = path.join(__dirname, '..', '..', 'client', 'dist');
+
+exports.getDistFileContent = function(file) {
+  return fs.readFileSync(path.join(exports.distPath, file)).toString();
+};
 
 exports.DBclear = function(callback) {
   // truncate all tables
