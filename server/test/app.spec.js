@@ -111,20 +111,18 @@ describe('Request routes (empty)', function() {
 
 describe('Request routes', function() {
   var time = new Date().getTime() + 600000;
+  var data = utils.testData(time);
 
   before(function(done) {
     // Put data in DB
-    utils.DBtestData(time, done);
+    utils.DBtestData(data, done);
   });
 
   it('should get groups', function(done) {
     request.get(utils.address + '/groups').end(function(err, res) {
       should.not.exist(err);
       res.should.have.status(200);
-      res.body.should.eql([{
-        id: 123,
-        name: 'abc'
-      }]);
+      res.body.should.eql(data.groups);
       done();
     });
   });
@@ -132,59 +130,32 @@ describe('Request routes', function() {
     request.get(utils.address + '/classes/0').end(function(err, res) {
       should.not.exist(err);
       res.should.have.status(200);
-      res.body.should.eql([{
-        id: 123,
-        day: 0,
-        time: '10:00',
-        groupid: 123,
-        startTime: time,
-        lediga: 10,
-        bokningsbara: 10,
-        totalt: 10,
-        aktivitet: 'abc',
-        lokal: 'ABC',
-        resurs: 'def',
-        score: 0,
-        ny: 1
-      }]);
+      res.body.should.eql(data.classes);
       done();
     });
   });
 
-  it('should get class', function(done) {
-    request.get(utils.address + '/class/123').end(function(err, res) {
+  it('should get class data', function(done) {
+    var c = data.classes[0];
+    request.get(utils.address + '/class/' + c.id).end(function(err, res) {
       should.not.exist(err);
       res.should.have.status(200);
-      res.body.should.eql([{
-        time: time,
-        lediga: 10,
-        bokningsbara: 10,
-        waitinglistsize: 0,
-        totalt: 10
-      }]);
+      var d = data.class_data;
+      // The response doesn't have classid
+      for (var i = 0, j = d.length; i < j; i++) {
+        delete d[i].classid;
+      }
+      res.body.should.eql(d);
       done();
     });
   });
 
   it('should get classinfo', function(done) {
-    request.get(utils.address + '/class/123/info').end(function(err, res) {
+    var c = data.classes[0];
+    request.get(utils.address + '/class/' + c.id + '/info').end(function(err, res) {
       should.not.exist(err);
       res.should.have.status(200);
-      res.body.should.eql({
-        id: 123,
-        day: 0,
-        time: '10:00',
-        groupid: 123,
-        startTime: time,
-        lediga: 10,
-        bokningsbara: 10,
-        totalt: 10,
-        aktivitet: 'abc',
-        lokal: 'ABC',
-        resurs: 'def',
-        score: 0,
-        ny: 1
-      });
+      res.body.should.eql(c);
       done();
     });
   });
@@ -193,19 +164,7 @@ describe('Request routes', function() {
     request.get(utils.address + '/scores').end(function(err, res) {
       should.not.exist(err);
       res.should.have.status(200);
-      res.body.should.eql([{
-        day: 0,
-        time: '10:00',
-        startTime: time,
-        aktivitet: 'abc',
-        groupid: 123,
-        score: 0,
-        lediga: 10,
-        bokningsbara: 10,
-        totalt: 10,
-        lokal: 'ABC',
-        resurs: 'def'
-      }]);
+      res.body.should.eql(data.scores);
       done();
     });
   });
