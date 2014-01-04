@@ -24,6 +24,7 @@
     "grunt-contrib-jshint": "~0.8.0",
     "grunt-jsbeautifier": "~0.2.6",
     "grunt-mocha-test": "~0.8.1",
+    "grunt-contrib-watch": "~0.5.3",
     "superagent": "~0.15.7",
     "should": "~2.1.1"
   },
