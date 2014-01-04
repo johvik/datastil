@@ -69,7 +69,7 @@ describe('Request routes (empty)', function() {
     request.get(utils.address + '/groups').end(function(err, res) {
       should.not.exist(err);
       res.should.have.status(200);
-      JSON.parse(res.text).should.eql([]);
+      res.body.should.eql([]);
       done();
     });
   });
@@ -78,7 +78,7 @@ describe('Request routes (empty)', function() {
     request.get(utils.address + '/classes/0').end(function(err, res) {
       should.not.exist(err);
       res.should.have.status(200);
-      JSON.parse(res.text).should.eql([]);
+      res.body.should.eql([]);
       done();
     });
   });
@@ -103,7 +103,7 @@ describe('Request routes (empty)', function() {
     request.get(utils.address + '/scores').end(function(err, res) {
       should.not.exist(err);
       res.should.have.status(200);
-      JSON.parse(res.text).should.eql([]);
+      res.body.should.eql([]);
       done();
     });
   });
@@ -121,7 +121,7 @@ describe('Request routes', function() {
     request.get(utils.address + '/groups').end(function(err, res) {
       should.not.exist(err);
       res.should.have.status(200);
-      JSON.parse(res.text).should.eql([{
+      res.body.should.eql([{
         id: 123,
         name: 'abc'
       }]);
@@ -132,7 +132,7 @@ describe('Request routes', function() {
     request.get(utils.address + '/classes/0').end(function(err, res) {
       should.not.exist(err);
       res.should.have.status(200);
-      JSON.parse(res.text).should.eql([{
+      res.body.should.eql([{
         id: 123,
         day: 0,
         time: '10:00',
@@ -155,7 +155,7 @@ describe('Request routes', function() {
     request.get(utils.address + '/class/123').end(function(err, res) {
       should.not.exist(err);
       res.should.have.status(200);
-      JSON.parse(res.text).should.eql([{
+      res.body.should.eql([{
         time: time,
         lediga: 10,
         bokningsbara: 10,
@@ -170,7 +170,7 @@ describe('Request routes', function() {
     request.get(utils.address + '/class/123/info').end(function(err, res) {
       should.not.exist(err);
       res.should.have.status(200);
-      JSON.parse(res.text).should.eql({
+      res.body.should.eql({
         id: 123,
         day: 0,
         time: '10:00',
@@ -193,7 +193,7 @@ describe('Request routes', function() {
     request.get(utils.address + '/scores').end(function(err, res) {
       should.not.exist(err);
       res.should.have.status(200);
-      JSON.parse(res.text).should.eql([{
+      res.body.should.eql([{
         day: 0,
         time: '10:00',
         startTime: time,
