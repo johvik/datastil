@@ -3,6 +3,7 @@ var express = require('express');
 var path = require('path');
 var app = express();
 var TEST_ENV = process.env.NODE_ENV === 'test';
+var log = TEST_ENV ? function() {} : console.log;
 var config = TEST_ENV ?
   require('../config_test') : require('../config');
 
@@ -139,15 +140,11 @@ app.all('/*', function(req, res) {
 
 // Let DB init first
 db.init(function() {
-  if (TEST_ENV) {
-    // Just start server when testing
-    app.listen(config.PORT);
-  } else {
-    // Start the server
-    app.listen(config.PORT, function() {
-      console.log('Server started ' + new Date());
-    });
-
+  // Start the server
+  app.listen(config.PORT, function() {
+    log('Server started ' + new Date());
+  });
+  if (!TEST_ENV) {
     // Start cron jobs
     job1.start();
     job2.start();

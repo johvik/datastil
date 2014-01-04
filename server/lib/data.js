@@ -1,6 +1,9 @@
 var request = require('superagent');
 var async = require('async');
 
+var TEST_ENV = process.env.NODE_ENV === 'test';
+var log = TEST_ENV ? function() {} : console.log;
+
 module.exports = function(db) {
   function saveData(data, callback) {
     var id = parseInt(data.id, 10);
@@ -88,7 +91,7 @@ module.exports = function(db) {
     fetchData: function() {
       if (!done) {
         runningCount++;
-        console.log('Update already running... ' + runningCount + ' ' + new Date());
+        log('Update already running... ' + runningCount + ' ' + new Date());
         if (runningCount >= 5) {
           // To avoid deadlock...
           done = true;
@@ -96,7 +99,7 @@ module.exports = function(db) {
         return; // Let old update finish
       } else {
         runningCount = 0;
-        console.log('Starting update ' + new Date());
+        log('Starting update ' + new Date());
       }
       done = false;
       var page = 0;
@@ -125,14 +128,14 @@ module.exports = function(db) {
         function(err) {
           // Always set true just to be sure
           done = true;
-          console.log('Done ' + new Date(), err, page);
+          log('Done ' + new Date(), err, page);
         }
       );
     },
     updateScores: function() {
       db.getClassesForUpdate(function(err, result) {
         if (err) {
-          console.log('UpdateScores1', err);
+          log('UpdateScores1', err);
           return;
         }
         async.eachSeries(result, function(item, callback) {
@@ -190,7 +193,7 @@ module.exports = function(db) {
             }
           });
         }, function(err) {
-          console.log('UpdateScores2 ' + new Date(), err);
+          log('UpdateScores2 ' + new Date(), err);
         });
       });
     },
@@ -198,7 +201,7 @@ module.exports = function(db) {
       // Use a negative limit to go through all
       db.getClassIds(function(err, result) {
         if (err) {
-          console.log('MergeData1', err);
+          log('MergeData1', err);
           return;
         }
         // Add extra limit
@@ -245,7 +248,7 @@ module.exports = function(db) {
             }
           });
         }, function(err) {
-          console.log('MergeData2 ' + new Date(), prevTime, err);
+          log('MergeData2 ' + new Date(), prevTime, err);
         });
       });
     }
