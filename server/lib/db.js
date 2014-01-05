@@ -1,6 +1,14 @@
 var mysql = require('mysql');
 
 module.exports = function(config) {
+  // Check config file
+  if (!('USER' in config &&
+    'PASSWORD' in config &&
+    'DB' in config)) {
+    console.log('Missing parameters in config file');
+    throw 'Missing parameters in config file';
+  }
+
   var pool = mysql.createPool({
     user: config.USER,
     password: config.PASSWORD,

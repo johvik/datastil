@@ -11,10 +11,7 @@ var db = require('./db')(config);
 var data = require('./data')(db);
 
 // Check config file
-if (!('USER' in config &&
-  'PASSWORD' in config &&
-  'DB' in config &&
-  'PORT' in config)) {
+if (!('PORT' in config)) {
   console.log('Missing parameters in config file');
   throw 'Missing parameters in config file';
 }

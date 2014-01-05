@@ -1,6 +1,6 @@
 process.env.NODE_ENV = 'test';
 
-var config = require('../config_test.js');
+var config = exports.config = require('../config_test.js');
 var db = require('../lib/db')(config);
 db.init(function() {});
 
@@ -15,6 +15,24 @@ exports.distPath = path.join(__dirname, '..', '..', 'client', 'dist');
 
 exports.getDistFileContent = function(file) {
   return fs.readFileSync(path.join(exports.distPath, file)).toString();
+};
+
+exports.DBdrop = function(callback) {
+  var connection = mysql.createConnection({
+    user: config.USER,
+    password: config.PASSWORD
+  });
+  connection.connect(function(err) {
+    if (err) {
+      throw err;
+    }
+    connection.query('DROP DATABASE IF EXISTS ' + config.DB, function(err) {
+      if (err) {
+        throw err;
+      }
+      connection.end(callback);
+    });
+  });
 };
 
 exports.DBclear = function(callback) {
