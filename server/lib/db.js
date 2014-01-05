@@ -239,7 +239,7 @@ module.exports = function(config) {
         });
     },
     getScores: function(callback) {
-      poolQuery('SELECT day, time, startTime, aktivitet, groupid, score, lediga, bokningsbara, totalt, lokal, resurs FROM scores ORDER BY score ASC', callback);
+      poolQuery('SELECT day, time, startTime, aktivitet, groupid, score, lediga, bokningsbara, totalt, lokal, resurs FROM scores ORDER BY score DESC', callback);
     }
   };
 };

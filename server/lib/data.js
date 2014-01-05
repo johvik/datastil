@@ -4,6 +4,8 @@ var async = require('async');
 var TEST_ENV = process.env.NODE_ENV === 'test';
 var log = TEST_ENV ? function() {} : console.log;
 
+var dataMaxAge = 86400000 * 10; // 10 days in ms
+
 module.exports = function(db) {
   function saveData(data, callback) {
     var id = parseInt(data.id, 10);
@@ -24,8 +26,8 @@ module.exports = function(db) {
       if (startTime < currentTime) {
         return callback(null);
       }
-      // Do not store data if it is more than 10 days left
-      if ((startTime - currentTime) > 86400000 * 10) {
+      // Do not store data if it is more than maxAge
+      if ((startTime - currentTime) > dataMaxAge) {
         return callback(null);
       }
       var date = new Date(startTime);
@@ -143,30 +145,48 @@ module.exports = function(db) {
             if (err) {
               return callback(err);
             }
+            var start = item.startTime - dataMaxAge;
+            var end = item.startTime;
+            while (result.length > 0 && result[0].time < start) {
+              // Remove elemets before start
+              result.shift();
+            }
+            while (result.length > 0 && result[result.length - 1].time > end) {
+              // Remove elemets after end
+              result.pop();
+            }
+
             var length = result.length;
-            if (length > 0) {
-              var dt;
-              var last = result[length - 1];
+            if (length >= 2) {
+              // Adjust the time at the edges
+              result[0].time = start;
+              result[length - 1].time = end;
+
+              // Make them count as 50% more when its a waiting list
+              var waitWeight = 1.5;
               var prev = result[0];
-              var score = prev.lediga - prev.waitinglistsize;
+              var score = prev.lediga - prev.waitinglistsize * waitWeight;
               for (var i = 1; i < length; i++) {
                 var curr = result[i];
-                dt = (curr.time - prev.time) / 60000; // minutes
-                score += (curr.lediga - curr.waitinglistsize) * dt;
+                var dt = (curr.time - prev.time) / 60000; // minutes
+                var val = curr.lediga - curr.waitinglistsize * waitWeight;
+                score += val * dt;
                 prev = curr;
               }
 
-              // Extend last if data is missing
-              if (last.time < item.startTime) {
-                dt = (item.startTime - last.time) / 60000; // minutes
-                score += (last.lediga - last.waitinglistsize) * dt;
+              var totalArea = (dataMaxAge / 60000) * prev.totalt;
+              if (totalArea !== 0) {
+                // Percentage of area filled
+                score = 100 * score / totalArea;
+                score = Math.round(score);
+                score = Math.max(0, score); // >= 0
+                score = Math.min(100, score); // <= 100
+                // Invert to percentage not filled
+                // eg make high scores best
+                score = 100 - score;
+              } else {
+                score = 0;
               }
-
-              if (last.totalt !== 0) {
-                score = score / last.totalt;
-              }
-              score = Math.round(score);
-
               // Update score
               db.saveScore({
                 day: item.day,
@@ -175,9 +195,9 @@ module.exports = function(db) {
                 aktivitet: item.aktivitet,
                 groupid: item.groupid,
                 score: score,
-                lediga: last.lediga,
-                bokningsbara: (last.bokningsbara - last.waitinglistsize),
-                totalt: last.totalt,
+                lediga: prev.lediga,
+                bokningsbara: (prev.bokningsbara - prev.waitinglistsize),
+                totalt: prev.totalt,
                 lokal: item.lokal,
                 resurs: item.resurs
               }, function(err) {
@@ -189,7 +209,7 @@ module.exports = function(db) {
               });
             } else {
               // Delete data
-              db.deleteClass(item.id, callback);
+              return db.deleteClass(item.id, callback);
             }
           });
         }, function(err) {
