@@ -188,8 +188,8 @@ module.exports = function(db) {
                 db.deleteClass(item.id, callback);
               });
             } else {
-              // Do nothing
-              callback(null);
+              // Delete data
+              db.deleteClass(item.id, callback);
             }
           });
         }, function(err) {
