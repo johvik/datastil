@@ -43,11 +43,11 @@ describe('Test init', function() {
     var d = require('domain').create();
     d.on('error', function(err) {
       err.should.equal('Must call init in DB');
-      d.dispose();
       done();
     });
-    d.enter();
-    require('../lib/db')(utils.config);
+    d.run(function() {
+      require('../lib/db')(utils.config);
+    });
   });
 });
 
