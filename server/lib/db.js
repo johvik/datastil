@@ -166,7 +166,41 @@ module.exports = function(config) {
       // data{classid, time, lediga, bokningsbara,
       //      waitinglistsize, totalt}
       // callback(err)
-      poolQuery('INSERT INTO class_data SET ' + pool.escape(data), callback);
+      pool.getConnection(function(err, connection) {
+        if (err) {
+          connection.release();
+          return callback(err);
+        }
+        // Get last two data points
+        connection.query('SELECT id, classid, time, lediga, bokningsbara, waitinglistsize, totalt FROM class_data WHERE classid = ' +
+          pool.escape(data.classid) +
+          ' ORDER BY time DESC LIMIT 2', function(err, res) {
+            if (res.length >= 1 && data.time <= res[0].time) {
+              // Make sure the new data is indeed newer
+              connection.release();
+              return callback('New point before old point');
+            }
+            if (res.length === 2 && (
+              res[0].lediga === data.lediga &&
+              res[0].bokningsbara === data.bokningsbara &&
+              res[0].waitinglistsize === data.waitinglistsize &&
+              res[0].totalt === data.totalt &&
+              res[1].lediga === data.lediga &&
+              res[1].bokningsbara === data.bokningsbara &&
+              res[1].waitinglistsize === data.waitinglistsize &&
+              res[1].totalt === data.totalt)) {
+              // Middle point can be removed
+              data.id = res[0].id; // Overwrite latest point
+            }
+            // Save the data
+            var escaped = pool.escape(data);
+            connection.query('INSERT INTO class_data SET ' + escaped +
+              ' ON DUPLICATE KEY UPDATE ' + escaped, function(err) {
+                connection.release();
+                return callback(err);
+              });
+          });
+      });
     },
     getClassesForUpdate: function(callback) {
       // Add 10 min margin and get all classes that has occured

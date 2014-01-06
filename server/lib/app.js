@@ -27,15 +27,6 @@ var job1 = new cronJob('*/5 * * * *', function() {
   });
 });
 
-// Run every hour
-var job2 = new cronJob('2 * * * *', function() {
-  if (new Date().getHours() === 2) {
-    data.mergeData(-1); // Full scan at 2:02
-  } else {
-    data.mergeData(4200000); // Include 10 min old data
-  }
-});
-
 var dist = path.join(__dirname, '..', '..', 'client', 'dist');
 var maxAge = 30 * 24 * 60 * 60 * 1000; // in ms
 
@@ -149,6 +140,5 @@ db.init(function() {
   if (!TEST_ENV) {
     // Start cron jobs
     job1.start();
-    job2.start();
   }
 });
