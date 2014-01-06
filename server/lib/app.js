@@ -17,13 +17,18 @@ if (!('PORT' in config)) {
 }
 
 // Run every 5 min
-var job1 = new cronJob('*/5 * * * *', data.fetchData);
-
-// Run every night at 3:33
-var job2 = new cronJob('33 3 * * *', data.updateScores);
+var job1 = new cronJob('*/5 * * * *', function() {
+  data.fetchData(function(err) {
+    if (err) {
+      log('FetchData ' + new Date(), err);
+    } else {
+      data.updateScores();
+    }
+  });
+});
 
 // Run every hour
-var job3 = new cronJob('2 * * * *', function() {
+var job2 = new cronJob('2 * * * *', function() {
   if (new Date().getHours() === 2) {
     data.mergeData(-1); // Full scan at 2:02
   } else {
@@ -145,6 +150,5 @@ db.init(function() {
     // Start cron jobs
     job1.start();
     job2.start();
-    job3.start();
   }
 });

@@ -90,18 +90,18 @@ module.exports = function(db) {
   var runningCount = 0;
   // Exported functions
   return {
-    fetchData: function() {
+    fetchData: function(cb) {
+      // cb(err)
       if (!done) {
         runningCount++;
-        log('Update already running... ' + runningCount + ' ' + new Date());
         if (runningCount >= 5) {
           // To avoid deadlock...
           done = true;
         }
-        return; // Let old update finish
+        // Let old update finish
+        return cb('Update already running ' + runningCount);
       } else {
         runningCount = 0;
-        log('Starting update ' + new Date());
       }
       done = false;
       var page = 0;
@@ -130,7 +130,7 @@ module.exports = function(db) {
         function(err) {
           // Always set true just to be sure
           done = true;
-          log('Done ' + new Date(), err, page);
+          return cb(err);
         }
       );
     },
