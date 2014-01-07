@@ -175,6 +175,10 @@ module.exports = function(config) {
         connection.query('SELECT id, classid, time, lediga, bokningsbara, waitinglistsize, totalt FROM class_data WHERE classid = ' +
           pool.escape(data.classid) +
           ' ORDER BY time DESC LIMIT 2', function(err, res) {
+            if (err) {
+              connection.release();
+              return callback(err);
+            }
             if (res.length >= 1 && data.time <= res[0].time) {
               // Make sure the new data is indeed newer
               connection.release();
