@@ -12,7 +12,6 @@ var data = require('./data')(db);
 
 // Check config file
 if (!('PORT' in config)) {
-  console.log('Missing parameters in config file');
   throw 'Missing parameters in config file';
 }
 
@@ -22,7 +21,9 @@ var job1 = new cronJob('*/5 * * * *', function() {
     if (err) {
       log('FetchData ' + new Date(), err);
     } else {
-      data.updateScores();
+      data.updateScores(function(err) {
+        log('UpdateScores ' + new Date(), err);
+      });
     }
   });
 });

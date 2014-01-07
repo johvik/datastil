@@ -1,9 +1,6 @@
 var request = require('superagent');
 var async = require('async');
 
-var TEST_ENV = process.env.NODE_ENV === 'test';
-var log = TEST_ENV ? function() {} : console.log;
-
 var dataMaxAge = 86400000 * 10; // 10 days in ms
 
 module.exports = function(db) {
@@ -134,11 +131,11 @@ module.exports = function(db) {
         }
       );
     },
-    updateScores: function() {
+    updateScores: function(cb) {
+      // cb(err)
       db.getClassesForUpdate(function(err, result) {
         if (err) {
-          log('UpdateScores1', err);
-          return;
+          return cb(err);
         }
         async.eachSeries(result, function(item, callback) {
           db.getClassData(item.id, function(err, result) {
@@ -214,7 +211,7 @@ module.exports = function(db) {
             }
           });
         }, function(err) {
-          log('UpdateScores2 ' + new Date(), err);
+          return cb(err);
         });
       });
     }

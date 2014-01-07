@@ -5,7 +5,6 @@ module.exports = function(config) {
   if (!('USER' in config &&
     'PASSWORD' in config &&
     'DB' in config)) {
-    console.log('Missing parameters in config file');
     throw 'Missing parameters in config file';
   }
 
