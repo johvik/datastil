@@ -3,7 +3,7 @@
 <form class="form">
   <div class="form-group">
     <label class="sr-only" for="searchText">Search:</label>
-    <input type="text" class="form-control" id="searchText" placeholder="Text search" ng-model="searchText">
+    <input type="text" class="form-control" id="searchText" placeholder="Text search" ng-model="searchText" ng-change="classes.nextPage()">
   </div>
 </form>
 <div class="table-responsive">
