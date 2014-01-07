@@ -92,6 +92,7 @@ module.exports = function(config) {
                   connection.query('CREATE TABLE IF NOT EXISTS scores(' +
                     'day INT NOT NULL,' +
                     'time CHAR(5) NOT NULL,' +
+                    'classid INT NOT NULL,' +
                     'startTime BIGINT NOT NULL,' +
                     'aktivitet VARCHAR(50) NOT NULL,' +
                     'groupid INT NOT NULL,' +
@@ -214,20 +215,45 @@ module.exports = function(config) {
         pool.escape(time) + ' ORDER BY startTime ASC', callback);
     },
     saveScore: function(data, callback) {
-      // data{day, time, startTime, aktivitet, groupid, score,
+      // data{day, time, classid, startTime, aktivitet, groupid, score,
       //      lediga, bokningsbara, totalt, lokal, resurs}
       // callback(err)
-      var escaped = pool.escape(data);
-      poolQuery('INSERT INTO scores SET ' + escaped +
-        ' ON DUPLICATE KEY UPDATE ' + escaped, callback);
+      // TODO Replace with single connection
+      poolQuery('SELECT classid FROM scores WHERE day = ' +
+        pool.escape(data.day) + ' AND time = ' +
+        pool.escape(data.time) + ' AND aktivitet = ' +
+        pool.escape(data.aktivitet), function(err, res) {
+          if (err) {
+            return callback(err);
+          }
+          var escaped = pool.escape(data);
+          poolQuery('INSERT INTO scores SET ' + escaped +
+            ' ON DUPLICATE KEY UPDATE ' + escaped, function(err) {
+              if (res && res.length > 0) {
+                // Remove old
+                poolQuery('DELETE FROM class_data WHERE ' +
+                  pool.escape({
+                    classid: res[0].classid
+                  }), callback);
+              } else {
+                // Nothing to delete
+                return callback(null);
+              }
+            });
+        });
+
     },
-    deleteClass: function(id, callback) {
+    deleteClass: function(id, removeData, callback) {
       // callback(err)
+      // TODO Replace with single connection
       poolQuery('DELETE FROM classes WHERE ' + pool.escape({
         id: id
       }), function(err) {
         if (err) {
           return callback(err);
+        }
+        if (removeData !== true) {
+          return callback(null);
         }
         // Also delete its data
         poolQuery('DELETE FROM class_data WHERE ' + pool.escape({
@@ -269,7 +295,7 @@ module.exports = function(config) {
         });
     },
     getScores: function(callback) {
-      poolQuery('SELECT day, time, startTime, aktivitet, groupid, score, lediga, bokningsbara, totalt, lokal, resurs FROM scores ORDER BY score DESC', callback);
+      poolQuery('SELECT day, time, classid, startTime, aktivitet, groupid, score, lediga, bokningsbara, totalt, lokal, resurs FROM scores ORDER BY score DESC', callback);
     }
   };
 };

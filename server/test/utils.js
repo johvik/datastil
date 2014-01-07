@@ -89,6 +89,7 @@ exports.testData = function(time) {
     scores: [{
       day: 0,
       time: '10:00',
+      classid: 123,
       startTime: time,
       aktivitet: 'abc',
       groupid: 123,

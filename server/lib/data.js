@@ -191,6 +191,7 @@ module.exports = function(db) {
               db.saveScore({
                 day: item.day,
                 time: item.time,
+                classid: item.id,
                 startTime: item.startTime,
                 aktivitet: item.aktivitet,
                 groupid: item.groupid,
@@ -204,12 +205,12 @@ module.exports = function(db) {
                 if (err) {
                   return callback(err);
                 }
-                // Delete data
-                db.deleteClass(item.id, callback);
+                // Delete class
+                db.deleteClass(item.id, false, callback);
               });
             } else {
-              // Delete data
-              return db.deleteClass(item.id, callback);
+              // Delete class and data
+              return db.deleteClass(item.id, true, callback);
             }
           });
         }, function(err) {

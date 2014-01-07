@@ -55,6 +55,7 @@ describe('Test scores', function() {
   var score = {
     day: 1,
     time: '12:30',
+    classid: 123,
     startTime: new Date().getTime(),
     aktivitet: 'def',
     groupid: 456,
