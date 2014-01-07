@@ -245,14 +245,6 @@ module.exports = function(config) {
         pool.escape(id) + ' AND time >= ' +
         pool.escape(time) + ' ORDER BY time ASC', callback);
     },
-    removeClassData: function(ids, callback) {
-      // callback(err)
-      if (ids.length <= 0) {
-        return callback(null);
-      }
-      poolQuery('DELETE FROM class_data WHERE id IN (' +
-        pool.escape(ids) + ')', callback);
-    },
     getGroups: function(callback) {
       poolQuery('SELECT id, name FROM groups', callback);
     },

@@ -136,7 +136,6 @@ describe('Test groups', function() {
 // deleteClass
 // getClassIds
 // getClassDataForMerge
-// removeClassData
 // getClasses
 // getClassData
 // getClassInfo
