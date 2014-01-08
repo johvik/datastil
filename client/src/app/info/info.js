@@ -1,4 +1,4 @@
-angular.module('info', ['services.classdata', 'nvd3ChartDirectives'], ['$routeProvider',
+angular.module('info', ['services.classdata', 'directives.line-chart'], ['$routeProvider',
   function($routeProvider) {
     $routeProvider.when('/list/:id', {
       templateUrl: 'info/info.tpl.html',
@@ -21,32 +21,36 @@ angular.module('info', ['services.classdata', 'nvd3ChartDirectives'], ['$routePr
 
 angular.module('info').controller('InfoCtrl', ['$scope', '$filter', 'data', 'info',
   function($scope, $filter, data, info) {
+    var available = [];
+    var waitinglist = [];
+    // Convert data to x-y values
+    for (var i = 0, j = data.length; i < j; i++) {
+      var di = data[i];
+      available.push({
+        x: di.time,
+        y: di.lediga
+      });
+      waitinglist.push({
+        x: di.time,
+        y: di.waitinglistsize
+      });
+    }
+
     $scope.data = [{
+      values: available,
       key: 'Available',
-      values: data
+      color: '#1f77b4'
+    }, {
+      values: waitinglist,
+      key: 'Waiting list',
+      color: '#d62728'
     }];
     $scope.info = info;
-
-    $scope.xFunction = function() {
-      return function(d) {
-        return d.time;
-      };
-    };
-    $scope.yFunction = function() {
-      return function(d) {
-        return d.lediga - d.waitinglistsize;
-      };
-    };
 
     var dateFilter = $filter('date');
     $scope.xAxisTickFormat = function() {
       return function(d) {
         return dateFilter(d, 'MMM d, HH:mm');
-      };
-    };
-    $scope.yAxisTickFormat = function() {
-      return function(d) {
-        return d;
       };
     };
 

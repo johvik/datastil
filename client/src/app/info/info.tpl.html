@@ -17,4 +17,4 @@
     <td>{{info.lediga}}/{{info.totalt}}</td>
   </tr>
 </table>
-<nvd3-line-chart id="history-chart" height="300" data="data" showXAxis="true" showYAxis="true" xAxisTickFormat="xAxisTickFormat()" yAxisTickFormat="yAxisTickFormat()" x="xFunction()" y="yFunction()" forcex="[{{forcex}}]" interactive="true" tooltips="true"></nvd3-line-chart>
+<line-chart data="data" height="300" xtickformat="xAxisTickFormat()" forcex="{{forcex}}"></line-chart>
