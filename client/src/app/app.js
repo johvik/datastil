@@ -3,6 +3,7 @@ angular.module('app', [
   'list',
   'info',
   'highscore',
+  'score-info',
   'filters.capitalize',
   'services.breadcrumbs',
   'templates.app',

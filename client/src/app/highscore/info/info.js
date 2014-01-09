@@ -1,8 +1,9 @@
-angular.module('info', ['services.classdata', 'services.chart-data', 'directives.line-chart'], ['$routeProvider',
+// More or less copy-paste of list/info
+angular.module('score-info', ['services.classdata', 'services.chart-data', 'directives.line-chart'], ['$routeProvider',
   function($routeProvider) {
-    $routeProvider.when('/list/:id', {
-      templateUrl: 'info/info.tpl.html',
-      controller: 'InfoCtrl',
+    $routeProvider.when('/highscore/:id', {
+      templateUrl: 'highscore/info/info.tpl.html',
+      controller: 'ScoreInfoCtrl',
       resolve: {
         data: ['$route', 'ClassData',
           function($route, ClassData) {
@@ -11,7 +12,7 @@ angular.module('info', ['services.classdata', 'services.chart-data', 'directives
         ],
         info: ['$route', 'ClassData',
           function($route, ClassData) {
-            return ClassData.getInfo($route.current.params.id).$promise;
+            return ClassData.getScoreInfo($route.current.params.id).$promise;
           }
         ]
       }
@@ -19,7 +20,7 @@ angular.module('info', ['services.classdata', 'services.chart-data', 'directives
   }
 ]);
 
-angular.module('info').controller('InfoCtrl', ['$scope', '$filter', 'chartData', 'data', 'info',
+angular.module('score-info').controller('ScoreInfoCtrl', ['$scope', '$filter', 'chartData', 'data', 'info',
   function($scope, $filter, chartData, data, info) {
     var d = chartData.calc(data);
 
@@ -45,8 +46,6 @@ angular.module('info').controller('InfoCtrl', ['$scope', '$filter', 'chartData',
       };
     };
 
-    // End chart at current time
-    $scope.forcex = [new Date().getTime()];
     $scope.forcey = [0];
   }
 ]);

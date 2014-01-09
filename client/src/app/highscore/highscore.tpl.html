@@ -18,7 +18,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr ng-repeat="score in scoresFiltered = (scores | notInArray:hiddenGroups:'groupid' | classFilter:searchText)">
+      <tr class="clickable" ng-repeat="score in scoresFiltered = (scores | notInArray:hiddenGroups:'groupid' | classFilter:searchText)" ng-click="scoreInfo(score)">
         <td>{{$index + 1}}</td>
         <td>{{score.aktivitet}}</td>
         <td>{{score.resurs}}</td>

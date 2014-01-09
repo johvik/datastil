@@ -1,0 +1,16 @@
+<h1>{{info.aktivitet}}</h1>
+<table>
+  <tr ng-if="info.resurs">
+    <th>Resource&nbsp;</th>
+    <td>{{info.resurs}}</td>
+  </tr>
+  <tr>
+    <th>Place</th>
+    <td>{{info.lokal}}</td>
+  </tr>
+  <tr>
+    <th>Time</th>
+    <td>{{info.startTime | date:'HH:mm, EEEE, MMM d'}}</td>
+  </tr>
+</table>
+<line-chart data="data" height="300" xtickformat="xAxisTickFormat()" forcey="{{forcey}}"></line-chart>

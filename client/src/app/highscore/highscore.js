@@ -30,5 +30,10 @@ angular.module('highscore').controller('HighscoreCtrl', ['$scope', '$location', 
 
     $scope.$watchCollection('hiddenGroups', dataStorage.storeHiddenGroups);
     $scope.$watch('searchText', dataStorage.storeSearchText);
+
+    $scope.scoreInfo = function(c) {
+      $location.path('/highscore/' + c.classid);
+    };
+
   }
 ]);
