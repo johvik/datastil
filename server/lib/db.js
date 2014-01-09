@@ -87,7 +87,6 @@ module.exports = function(config) {
                   if (err) {
                     throw err;
                   }
-                  // TODO Can this table be merged together with classes?
                   connection.query('CREATE TABLE IF NOT EXISTS scores(' +
                     'day INT NOT NULL,' +
                     'time CHAR(5) NOT NULL,' +
@@ -217,47 +216,72 @@ module.exports = function(config) {
       // data{day, time, classid, startTime, aktivitet, groupid, score,
       //      lediga, bokningsbara, totalt, lokal, resurs}
       // callback(err)
-      // TODO Replace with single connection
-      poolQuery('SELECT classid FROM scores WHERE day = ' +
-        pool.escape(data.day) + ' AND time = ' +
-        pool.escape(data.time) + ' AND aktivitet = ' +
-        pool.escape(data.aktivitet), function(err, res) {
-          if (err) {
-            return callback(err);
-          }
-          var escaped = pool.escape(data);
-          poolQuery('INSERT INTO scores SET ' + escaped +
-            ' ON DUPLICATE KEY UPDATE ' + escaped, function(err) {
-              if (res && res.length > 0) {
-                // Remove old
-                poolQuery('DELETE FROM class_data WHERE ' +
-                  pool.escape({
-                    classid: res[0].classid
-                  }), callback);
-              } else {
-                // Nothing to delete
-                return callback(null);
-              }
-            });
-        });
+      pool.getConnection(function(err, connection) {
+        if (err) {
+          connection.release();
+          return callback(err);
+        }
+        connection.query('SELECT classid FROM scores WHERE day = ' +
+          pool.escape(data.day) + ' AND time = ' +
+          pool.escape(data.time) + ' AND aktivitet = ' +
+          pool.escape(data.aktivitet), function(err, res) {
+            if (err) {
+              connection.release();
+              return callback(err);
+            }
+            var escaped = pool.escape(data);
+            connection.query('INSERT INTO scores SET ' + escaped +
+              ' ON DUPLICATE KEY UPDATE ' + escaped, function(err) {
+                if (err) {
+                  connection.release();
+                  return callback(err);
+                }
+                var escaped = pool.escape(data);
+                if (res && res.length > 0) {
+                  // Remove old
+                  connection.query('DELETE FROM class_data WHERE ' +
+                    pool.escape({
+                      classid: res[0].classid
+                    }), function(err) {
+                      connection.release();
+                      return callback(err);
+                    });
+                } else {
+                  // Nothing to delete
+                  connection.release();
+                  return callback(null);
+                }
+              });
+          });
+      });
 
     },
     deleteClass: function(id, removeData, callback) {
       // callback(err)
-      // TODO Replace with single connection
-      poolQuery('DELETE FROM classes WHERE ' + pool.escape({
-        id: id
-      }), function(err) {
+      pool.getConnection(function(err, connection) {
         if (err) {
+          connection.release();
           return callback(err);
         }
-        if (removeData !== true) {
-          return callback(null);
-        }
-        // Also delete its data
-        poolQuery('DELETE FROM class_data WHERE ' + pool.escape({
-          classid: id
-        }), callback);
+        connection.query('DELETE FROM classes WHERE ' + pool.escape({
+          id: id
+        }), function(err) {
+          if (err) {
+            connection.release();
+            return callback(err);
+          }
+          if (removeData !== true) {
+            connection.release();
+            return callback(null);
+          }
+          // Also delete its data
+          connection.query('DELETE FROM class_data WHERE ' + pool.escape({
+            classid: id
+          }), function(err) {
+            connection.release();
+            return callback(err);
+          });
+        });
       });
     },
     getClassIds: function(callback) {
