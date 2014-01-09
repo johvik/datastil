@@ -1,4 +1,4 @@
-angular.module('info', ['services.classdata', 'directives.line-chart'], ['$routeProvider',
+angular.module('info', ['services.classdata', 'services.chart-data', 'directives.line-chart'], ['$routeProvider',
   function($routeProvider) {
     $routeProvider.when('/list/:id', {
       templateUrl: 'info/info.tpl.html',
@@ -19,32 +19,23 @@ angular.module('info', ['services.classdata', 'directives.line-chart'], ['$route
   }
 ]);
 
-angular.module('info').controller('InfoCtrl', ['$scope', '$filter', 'data', 'info',
-  function($scope, $filter, data, info) {
-    var available = [];
-    var waitinglist = [];
-    // Convert data to x-y values
-    for (var i = 0, j = data.length; i < j; i++) {
-      var di = data[i];
-      available.push({
-        x: di.time,
-        y: di.lediga
-      });
-      waitinglist.push({
-        x: di.time,
-        y: di.waitinglistsize
-      });
-    }
+angular.module('info').controller('InfoCtrl', ['$scope', '$filter', 'chartData', 'data', 'info',
+  function($scope, $filter, chartData, data, info) {
+    var d = chartData.calc(data);
 
     $scope.data = [{
-      values: available,
+      values: d.available,
       key: 'Available',
       color: '#1f77b4'
-    }, {
-      values: waitinglist,
-      key: 'Waiting list',
-      color: '#d62728'
     }];
+    // Only show waitinglist if there is any!
+    if (d.waitinglist.length > 0) {
+      $scope.data.push({
+        values: d.waitinglist,
+        key: 'Waiting list',
+        color: '#d62728'
+      });
+    }
     $scope.info = info;
 
     var dateFilter = $filter('date');
@@ -55,6 +46,7 @@ angular.module('info').controller('InfoCtrl', ['$scope', '$filter', 'data', 'inf
     };
 
     // End chart at current time
-    $scope.forcex = new Date().getTime();
+    $scope.forcex = [new Date().getTime()];
+    $scope.forcey = [0];
   }
 ]);

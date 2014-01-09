@@ -49,11 +49,11 @@ angular.module('directives.line-chart', [])
               }
 
               if (attrs.forcex) {
-                chart.forceX([scope.$eval(attrs.forcex)]);
+                chart.forceX(scope.$eval(attrs.forcex));
               }
 
               if (attrs.forcey) {
-                chart.forceY([scope.$eval(attrs.forcey)]);
+                chart.forceY(scope.$eval(attrs.forcey));
               }
 
               svg.datum(data)
