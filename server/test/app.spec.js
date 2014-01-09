@@ -107,6 +107,14 @@ describe('Request routes (empty)', function() {
       done();
     });
   });
+
+  it('should not get scoreinfo', function(done) {
+    request.get(utils.address + '/score/0').end(function(err, res) {
+      should.not.exist(err);
+      res.should.have.status(404);
+      done();
+    });
+  });
 });
 
 describe('Request routes', function() {
@@ -165,6 +173,16 @@ describe('Request routes', function() {
       should.not.exist(err);
       res.should.have.status(200);
       res.body.should.eql(data.scores);
+      done();
+    });
+  });
+
+  it('should get scoreinfo', function(done) {
+    var c = data.scores[0];
+    request.get(utils.address + '/score/' + c.classid).end(function(err, res) {
+      should.not.exist(err);
+      res.should.have.status(200);
+      res.body.should.eql(c);
       done();
     });
   });

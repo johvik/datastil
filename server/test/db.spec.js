@@ -140,3 +140,4 @@ describe('Test groups', function() {
 // getClasses
 // getClassData
 // getClassInfo
+// getScoreInfo

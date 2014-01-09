@@ -59,6 +59,7 @@ app.get('/groups', function(req, res) {
     res.json(result);
   });
 });
+
 app.get('/classes/:id', function(req, res) {
   var id = parseInt(req.params.id, 10);
   if (isNaN(id) || id < 0) {
@@ -85,6 +86,7 @@ app.get('/classes/:id', function(req, res) {
     res.json(result);
   });
 });
+
 app.get('/class/:id', function(req, res) {
   var id = parseInt(req.params.id, 10);
   if (isNaN(id)) {
@@ -100,6 +102,7 @@ app.get('/class/:id', function(req, res) {
     res.json(result);
   });
 });
+
 app.get('/class/:id/info', function(req, res) {
   var id = parseInt(req.params.id, 10);
   if (isNaN(id)) {
@@ -115,6 +118,7 @@ app.get('/class/:id/info', function(req, res) {
     res.json(result);
   });
 });
+
 app.get('/scores', function(req, res) {
   db.getScores(function(err, result) {
     if (err) {
@@ -124,6 +128,23 @@ app.get('/scores', function(req, res) {
     res.json(result);
   });
 });
+
+app.get('/score/:id', function(req, res) {
+  var id = parseInt(req.params.id, 10);
+  if (isNaN(id)) {
+    return res.send(400);
+  }
+  db.getScoreInfo(id, function(err, result) {
+    if (err) {
+      return res.send(500);
+    } else if (!result) {
+      return res.send(404);
+    }
+    res.setHeader('Cache-Control', 'no-cache');
+    res.json(result);
+  });
+});
+
 app.all('/*', function(req, res) {
   // Just send the index.html for other files to support HTML5Mode
   res.sendfile('index.html', {
