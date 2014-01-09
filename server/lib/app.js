@@ -78,7 +78,16 @@ app.get('/classes/:id', function(req, res) {
       filter.push(num);
     }
   }
-  db.getClasses(id, filter, function(err, result) {
+  var pageSize = 20;
+  if ('size' in req.query) {
+    var n = parseInt(req.query.size, 10);
+    if (isNaN(n) || n <= 0 || n >= 2147483647) {
+      // Not a number or out of range
+      return res.send(400);
+    }
+    pageSize = n;
+  }
+  db.getClasses(id, filter, pageSize, function(err, result) {
     if (err) {
       return res.send(500);
     }

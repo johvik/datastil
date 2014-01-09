@@ -297,14 +297,14 @@ module.exports = function(config) {
     getGroups: function(callback) {
       poolQuery('SELECT id, name FROM groups', callback);
     },
-    getClasses: function(id, filter, callback) {
+    getClasses: function(id, filter, pageSize, callback) {
       var currentTime = new Date().getTime();
       var query = 'SELECT id, day, time, groupid, startTime, lediga, bokningsbara, totalt, aktivitet, lokal, resurs, score, ny FROM classes WHERE startTime >= ' +
         pool.escape(currentTime);
       if (filter.length > 0) {
         query += ' AND groupid IN (' + pool.escape(filter) + ')';
       }
-      query += ' ORDER BY startTime ASC LIMIT ' + pool.escape(id * 20) + ',20';
+      query += ' ORDER BY startTime ASC LIMIT ' + pool.escape(id * pageSize) + ',' + pool.escape(pageSize);
       poolQuery(query, callback);
     },
     getClassData: function(id, callback) {
