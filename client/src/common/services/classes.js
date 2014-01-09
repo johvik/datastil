@@ -4,6 +4,7 @@ angular.module('services.classes').factory('classes', ['$resource',
 
     var classesService = {};
     var page = 0;
+    var pageSize = 50;
 
     classesService.data = [];
     classesService.pageLoading = false;
@@ -14,12 +15,12 @@ angular.module('services.classes').factory('classes', ['$resource',
         classesService.pageLoading = true;
 
         // Get next page
-        $resource('/classes/' + page++).query(function(res) {
+        $resource('/classes/' + (page++) + '?size=' + pageSize).query(function(res) {
           classesService.data = classesService.data.concat(res);
 
           classesService.pageLoading = false;
-          if (res.length < 20) {
-            // 20 elements per page
+          if (res.length < pageSize) {
+            // No more when there is less than the requested ammount
             classesService.hasNext = false;
           }
         }, function() {
