@@ -7,3 +7,6 @@
   text-decoration: none;
   color: black;
 }
+.link-table-row a {
+  outline: none;
+}
