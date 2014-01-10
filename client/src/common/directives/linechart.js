@@ -16,8 +16,8 @@ angular.module('directives.line-chart', [])
       link: function(scope, element, attrs) {
         var svg = d3.select(element[0])
           .append('svg')
-          .attr('width', '100%')
-          .attr('height', scope.height);
+          .style('width', '100%')
+          .style('height', scope.height + 'px');
 
         scope.$watch('data', function(val, old) {
           return scope.render(val);
