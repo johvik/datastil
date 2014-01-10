@@ -157,6 +157,24 @@ module.exports = function(db) {
             for (var j = result.length - 1; j >= 0; j--) {
               if (result[j].totalt === 0) {
                 result.splice(0, j + 1);
+                if (result.length > 0) {
+                  // Set first section to worst possible
+                  var last = result[result.length - 1];
+                  // Add an extra point right before the next one
+                  result.unshift({
+                    time: result[0].time - 1,
+                    lediga: last.totalt,
+                    bokningsbara: last.totalt,
+                    waitinglistsize: 0
+                  });
+                  // Add an extra point at the start
+                  result.unshift({
+                    time: start,
+                    lediga: last.totalt,
+                    bokningsbara: last.totalt,
+                    waitinglistsize: 0
+                  });
+                }
                 break;
               }
             }
