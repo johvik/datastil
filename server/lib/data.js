@@ -153,6 +153,14 @@ module.exports = function(db) {
               result.pop();
             }
 
+            // Ignore previous sections when totalt is 0
+            for (var j = result.length - 1; j >= 0; j--) {
+              if (result[j].totalt === 0) {
+                result.splice(0, j + 1);
+                break;
+              }
+            }
+
             var length = result.length;
             if (length >= 2) {
               // Adjust the time at the edges
