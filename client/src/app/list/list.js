@@ -28,9 +28,5 @@ angular.module('list').controller('ListCtrl', ['$scope', '$location', 'classes',
       classes.nextPage();
     });
     $scope.$watch('searchText', dataStorage.storeSearchText);
-
-    $scope.classInfo = function(c) {
-      $location.path('/list/' + c.id);
-    };
   }
 ]);

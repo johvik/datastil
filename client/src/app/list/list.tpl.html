@@ -18,12 +18,22 @@
       </tr>
     </thead>
     <tbody>
-      <tr class="clickable" ng-repeat="class in classesFiltered = (classes.data | notInArray:hiddenGroups:'groupid' | classFilter:searchText)" ng-click="classInfo(class)">
-        <td>{{class.aktivitet}}</td>
-        <td>{{class.resurs}}</td>
-        <td>{{class.lokal}}</td>
-        <td>{{class.startTime | date:'HH:mm, EEEE, MMM d'}}</td>
-        <td>{{class.lediga}}</td>
+      <tr class="link-table-row" ng-repeat="class in classesFiltered = (classes.data | notInArray:hiddenGroups:'groupid' | classFilter:searchText)">
+        <td>
+          <a href="/list/{{class.id}}">{{class.aktivitet}}</a>
+        </td>
+        <td>
+          <a href="/list/{{class.id}}">{{class.resurs}}<span ng-if="!class.resurs">&nbsp;</span></a>
+        </td>
+        <td>
+          <a href="/list/{{class.id}}">{{class.lokal}}</a>
+        </td>
+        <td>
+          <a href="/list/{{class.id}}">{{class.startTime | date:'HH:mm, EEEE, MMM d'}}</a>
+        </td>
+        <td>
+          <a href="/list/{{class.id}}">{{class.lediga}}</a>
+        </td>
       </tr>
       <tr ng-show="!classesFiltered.length">
         <td colspan="5">Nothing in the list =(</td>
