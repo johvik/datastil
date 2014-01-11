@@ -6,6 +6,7 @@ angular.module('app', [
   'score-info',
   'filters.capitalize',
   'services.breadcrumbs',
+  'services.notification',
   'templates.app',
   'templates.common'
 ]);
@@ -19,10 +20,16 @@ angular.module('app').config(['$routeProvider', '$locationProvider',
   }
 ]);
 
-angular.module('app').controller('AppCtrl', ['$scope', '$location',
-  function($scope, $location) {
-    $scope.$on('$routeChangeError', function() {
-      $location.path('/list');
+angular.module('app').controller('AppCtrl', ['$scope', 'notification',
+  function($scope, notification) {
+    $scope.notification = notification;
+
+    $scope.$on('$routeChangeError', function(angularEvent, current, previous, rejection) {
+      if (rejection && rejection.status === 404) {
+        notification.text = 'Page not found.';
+      } else {
+        notification.text = 'Something went wrong =(';
+      }
     });
   }
 ]);
