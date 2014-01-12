@@ -9,11 +9,11 @@ module.exports = function(grunt) {
   // Project configuration.
   grunt.initConfig({
     watch: {
-      files: ['index.js', 'lib/*.js', 'test/**/*.js'],
+      files: ['index.js', 'lib/**/*.js', 'test/**/*.js'],
       tasks: ['default', 'timestamp']
     },
     jshint: {
-      files: ['gruntFile.js', 'index.js', 'lib/*.js', 'test/**/*.js'],
+      files: ['gruntFile.js', 'index.js', 'lib/**/*.js', 'test/**/*.js'],
       options: {
         node: true,
         curly: true,
