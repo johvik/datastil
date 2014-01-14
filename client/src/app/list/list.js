@@ -16,6 +16,8 @@ angular.module('list', [
 
 angular.module('list').controller('ListCtrl', ['$scope', '$location', 'classes', 'dataStorage',
   function($scope, $location, classes, dataStorage) {
+    classes.resetIfOld();
+
     $scope.classes = classes;
 
     // Read stored values

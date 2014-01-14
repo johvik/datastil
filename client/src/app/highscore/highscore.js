@@ -16,6 +16,8 @@ angular.module('highscore', [
 
 angular.module('highscore').controller('HighscoreCtrl', ['$scope', '$location', 'scores', 'dataStorage',
   function($scope, $location, scores, dataStorage) {
+    scores.resetIfOld();
+
     $scope.scores = scores;
 
     // Read stored values
