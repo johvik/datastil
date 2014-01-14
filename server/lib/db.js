@@ -317,8 +317,10 @@ module.exports = function(config) {
           callback(err, res[0]);
         });
     },
-    getScores: function(callback) {
-      poolQuery('SELECT day, time, classid, startTime, aktivitet, groupid, score, lediga, bokningsbara, totalt, lokal, resurs FROM scores ORDER BY score DESC', callback);
+    getScores: function(id, pageSize, callback) {
+      poolQuery('SELECT day, time, classid, startTime, aktivitet, groupid, score, lediga, bokningsbara, totalt, lokal, resurs FROM scores ORDER BY score DESC LIMIT ' +
+        pool.escape(id * pageSize) + ',' +
+        pool.escape(pageSize), callback);
     },
     getScoreInfo: function(id, callback) {
       poolQuery('SELECT classid, day, time, groupid, startTime, lediga, bokningsbara, totalt, aktivitet, lokal, resurs, score FROM scores WHERE classid = ' +

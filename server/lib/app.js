@@ -128,8 +128,21 @@ app.get('/class/:id/info', function(req, res) {
   });
 });
 
-app.get('/scores', function(req, res) {
-  db.getScores(function(err, result) {
+app.get('/scores/:id', function(req, res) {
+  var id = parseInt(req.params.id, 10);
+  if (isNaN(id) || id < 0) {
+    return res.send(400);
+  }
+  var pageSize = 20;
+  if ('size' in req.query) {
+    var n = parseInt(req.query.size, 10);
+    if (isNaN(n) || n <= 0 || n >= 2147483647) {
+      // Not a number or out of range
+      return res.send(400);
+    }
+    pageSize = n;
+  }
+  db.getScores(id, pageSize, function(err, result) {
     if (err) {
       return res.send(500);
     }

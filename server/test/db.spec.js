@@ -82,7 +82,7 @@ describe('Test scores', function() {
     db.saveScore(score, function(err) {
       should.not.exist(err);
       // Check that it was saved
-      db.getScores(function(err, res) {
+      db.getScores(0, 20, function(err, res) {
         res.should.eql([score]);
         done();
       });

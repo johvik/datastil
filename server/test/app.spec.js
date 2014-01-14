@@ -100,7 +100,7 @@ describe('Request routes (empty)', function() {
   });
 
   it('should get scores', function(done) {
-    request.get(utils.address + '/scores').end(function(err, res) {
+    request.get(utils.address + '/scores/0').end(function(err, res) {
       should.not.exist(err);
       res.should.have.status(200);
       res.body.should.eql([]);
@@ -169,7 +169,7 @@ describe('Request routes', function() {
   });
 
   it('should get scores', function(done) {
-    request.get(utils.address + '/scores').end(function(err, res) {
+    request.get(utils.address + '/scores/0').end(function(err, res) {
       should.not.exist(err);
       res.should.have.status(200);
       res.body.should.eql(data.scores);
