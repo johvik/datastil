@@ -14,8 +14,15 @@ angular.module('highscore', [
   }
 ]);
 
-angular.module('highscore').controller('HighscoreCtrl', ['$scope', '$location', 'scores', 'dataStorage',
+angular.module('highscore').controller('HighscoreCtrl', [
+  '$scope',
+  '$location',
+  'scores',
+  'dataStorage',
   function($scope, $location, scores, dataStorage) {
+    $scope.$on('window.focus', function() {
+      scores.resetIfOld();
+    });
     scores.resetIfOld();
 
     $scope.scores = scores;

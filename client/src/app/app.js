@@ -20,8 +20,15 @@ angular.module('app').config(['$routeProvider', '$locationProvider',
   }
 ]);
 
-angular.module('app').controller('AppCtrl', ['$scope', 'notification',
-  function($scope, notification) {
+angular.module('app').controller('AppCtrl', [
+  '$rootScope',
+  '$scope',
+  '$window',
+  'notification',
+  function($rootScope, $scope, $window, notification) {
+    $window.onfocus = function() {
+      $rootScope.$broadcast('window.focus');
+    };
     $scope.notification = notification;
 
     $scope.$on('$routeChangeError', function(angularEvent, current, previous, rejection) {
