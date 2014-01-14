@@ -20,6 +20,7 @@ angular.module('services.classes').factory('classes', ['$resource',
         page = 0;
         classesService.data = [];
         classesService.hasNext = true;
+        classesService.nextPage(); // Trigger first page
       }
     };
 

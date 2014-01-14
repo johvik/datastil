@@ -20,6 +20,7 @@ angular.module('services.scores').factory('scores', ['$resource',
         page = 0;
         scoresService.data = [];
         scoresService.hasNext = true;
+        scoresService.nextPage(); // Trigger first page
       }
     };
 
