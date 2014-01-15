@@ -12,9 +12,12 @@
     <th>Time</th>
     <td>{{info.startTime | date:'HH:mm, EEEE, MMM d'}}</td>
   </tr>
-  <tr>
+  <tr ng-show="!info.installt">
     <th>Available&nbsp;</th>
     <td>{{info.lediga}}/{{info.totalt}}</td>
+  </tr>
+  <tr ng-show="info.installt">
+    <th colspan="2">Cancelled</th>
   </tr>
 </table>
 <line-chart data="data" height="300" xtickformat="xAxisTickFormat()" forcex="{{forcex}}" forcey="{{forcey}}"></line-chart>
