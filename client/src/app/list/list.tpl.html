@@ -20,7 +20,10 @@
     <tbody>
       <tr class="link-table-row" ng-repeat="class in classesFiltered = (classes.data | notInArray:hiddenGroups:'groupid' | classFilter:searchText)">
         <td>
-          <a href="/list/{{class.id}}">{{class.aktivitet}}</a>
+          <a href="/list/{{class.id}}" ng-if="!class.installt">{{class.aktivitet}}</a>
+          <a href="/list/{{class.id}}" ng-if="class.installt">
+            <del>{{class.aktivitet}}</del>
+          </a>
         </td>
         <td>
           <a href="/list/{{class.id}}">{{class.resurs}}<span ng-if="!class.resurs">&nbsp;</span></a>
@@ -32,10 +35,8 @@
           <a href="/list/{{class.id}}">{{class.startTime | date:'HH:mm, EEEE, MMM d'}}</a>
         </td>
         <td>
-          <a href="/list/{{class.id}}" ng-show="!class.installt">{{class.lediga}}</a>
-          <a href="/list/{{class.id}}" ng-show="class.installt">
-            <abbr title="Cancelled">-</abbr>
-          </a>
+          <a href="/list/{{class.id}}" ng-if="!class.installt">{{class.lediga}}</a>
+          <a href="/list/{{class.id}}" ng-if="class.installt">-</a>
         </td>
       </tr>
       <tr ng-show="!classesFiltered.length">
