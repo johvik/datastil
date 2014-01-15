@@ -17,7 +17,8 @@ module.exports = function(db) {
       'startTimeDT' in data && !isNaN(startTime) &&
       'aktivitet' in data &&
       'lokal' in data &&
-      'resurs' in data && !isNaN(lediga) && !isNaN(bokningsbara) && !isNaN(waitinglistsize) && !isNaN(totalt)) {
+      'resurs' in data && !isNaN(lediga) &&
+      'installt' in data && !isNaN(bokningsbara) && !isNaN(waitinglistsize) && !isNaN(totalt)) {
       var currentTime = new Date().getTime();
       // Make sure it hasn't occured yet
       if (startTime < currentTime) {
@@ -34,6 +35,7 @@ module.exports = function(db) {
       var index = data.startTimeDT.indexOf('T');
       var time = data.startTimeDT.substring(index + 1, index + 6);
       var aktivitet = data.aktivitet.substring(0, 50); // Max 50 chars
+      var installt = data.installt === 'true' ? 1 : 0;
       // Get score of the class
       db.getScore(day, time, aktivitet, function(err, score, ny) {
         if (err) {
@@ -61,6 +63,7 @@ module.exports = function(db) {
             lokal: data.lokal,
             resurs: data.resurs,
             score: score,
+            installt: installt,
             ny: ny
           }, function(err) {
             if (err) {
@@ -141,6 +144,10 @@ module.exports = function(db) {
           db.getClassData(item.id, function(err, result) {
             if (err) {
               return callback(err);
+            }
+            if (item.installt === 1) {
+              // Delete class and data
+              return db.deleteClass(item.id, true, callback);
             }
             var start = item.startTime - dataMaxAge;
             var end = item.startTime;

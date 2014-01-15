@@ -71,6 +71,7 @@ module.exports = function(config) {
             'lokal TEXT NOT NULL,' +
             'resurs TEXT NOT NULL,' +
             'score INT NOT NULL,' +
+            'installt BOOL NOT NULL,' +
             'ny BOOL NOT NULL)', function(err) {
               if (err) {
                 throw err;
@@ -155,7 +156,7 @@ module.exports = function(config) {
     saveClass: function(data, callback) {
       // data{id, groupid, day, time, startTime, lediga,
       //      bokningsbara, totalt, aktivitet, lokal,
-      //      resurs, score, ny}
+      //      resurs, score, installt, ny}
       // callback(err)
       var escaped = pool.escape(data);
       poolQuery('INSERT INTO classes SET ' + escaped +
@@ -209,7 +210,7 @@ module.exports = function(config) {
       // Add 10 min margin and get all classes that has occured
       // callback(err, res)
       var time = new Date().getTime() - 600000;
-      poolQuery('SELECT id, day, time, startTime, groupid, aktivitet, lokal, resurs FROM classes WHERE startTime < ' +
+      poolQuery('SELECT id, day, time, startTime, groupid, aktivitet, lokal, resurs, installt FROM classes WHERE startTime < ' +
         pool.escape(time) + ' ORDER BY startTime ASC', callback);
     },
     saveScore: function(data, callback) {
@@ -299,7 +300,7 @@ module.exports = function(config) {
     },
     getClasses: function(id, filter, pageSize, callback) {
       var currentTime = new Date().getTime();
-      var query = 'SELECT id, day, time, groupid, startTime, lediga, bokningsbara, totalt, aktivitet, lokal, resurs, score, ny FROM classes WHERE startTime >= ' +
+      var query = 'SELECT id, day, time, groupid, startTime, lediga, bokningsbara, totalt, aktivitet, lokal, resurs, score, installt, ny FROM classes WHERE startTime >= ' +
         pool.escape(currentTime);
       if (filter.length > 0) {
         query += ' AND groupid IN (' + pool.escape(filter) + ')';
@@ -312,7 +313,7 @@ module.exports = function(config) {
         pool.escape(id) + ' ORDER BY time ASC', callback);
     },
     getClassInfo: function(id, callback) {
-      poolQuery('SELECT id, day, time, groupid, startTime, lediga, bokningsbara, totalt, aktivitet, lokal, resurs, score, ny FROM classes WHERE id = ' +
+      poolQuery('SELECT id, day, time, groupid, startTime, lediga, bokningsbara, totalt, aktivitet, lokal, resurs, score, installt, ny FROM classes WHERE id = ' +
         pool.escape(id), function(err, res) {
           callback(err, res[0]);
         });

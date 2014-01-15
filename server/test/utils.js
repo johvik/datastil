@@ -76,6 +76,7 @@ exports.testData = function(time) {
       lokal: 'ABC',
       resurs: 'def',
       score: 0,
+      installt: 0,
       ny: 1
     }],
     class_data: [{
