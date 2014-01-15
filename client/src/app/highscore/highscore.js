@@ -20,9 +20,8 @@ angular.module('highscore').controller('HighscoreCtrl', [
   'scores',
   'dataStorage',
   function($scope, $location, scores, dataStorage) {
-    $scope.$on('window.focus', function() {
-      scores.resetIfOld();
-    });
+    $scope.$on('window.focus', scores.resetIfOld);
+    $scope.$on('window.timer', scores.resetIfOld);
     scores.resetIfOld();
 
     $scope.scores = scores;

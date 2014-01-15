@@ -7,6 +7,7 @@ angular.module('app', [
   'filters.capitalize',
   'services.breadcrumbs',
   'services.notification',
+  'services.periodic-task',
   'templates.app',
   'templates.common'
 ]);
@@ -25,10 +26,22 @@ angular.module('app').controller('AppCtrl', [
   '$scope',
   '$window',
   'notification',
-  function($rootScope, $scope, $window, notification) {
+  'PeriodicTask',
+  function($rootScope, $scope, $window, notification, PeriodicTask) {
+    // Start a task
+    var periodicTask = new PeriodicTask(60000, function() {
+      $rootScope.$broadcast('window.timer');
+    });
     $window.onfocus = function() {
       $rootScope.$broadcast('window.focus');
+      // Restart after blur
+      periodicTask.start();
     };
+    // Don't run when page is inactive
+    $window.onblur = periodicTask.stop;
+
+    periodicTask.start();
+
     $scope.notification = notification;
 
     $scope.$on('$routeChangeError', function(angularEvent, current, previous, rejection) {

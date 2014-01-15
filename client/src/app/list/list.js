@@ -20,9 +20,8 @@ angular.module('list').controller('ListCtrl', [
   'classes',
   'dataStorage',
   function($scope, $location, classes, dataStorage) {
-    $scope.$on('window.focus', function() {
-      classes.resetIfOld();
-    });
+    $scope.$on('window.focus', classes.resetIfOld);
+    $scope.$on('window.timer', classes.resetIfOld);
     classes.resetIfOld();
 
     $scope.classes = classes;
