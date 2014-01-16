@@ -30,11 +30,15 @@ angular.module('list').controller('ListCtrl', [
     $scope.hiddenGroups = dataStorage.loadHiddenGroups();
     $scope.searchText = dataStorage.loadSearchText();
 
-    $scope.$watchCollection('hiddenGroups', function(value) {
-      dataStorage.storeHiddenGroups(value);
+    $scope.$watch('hiddenGroups', function(newValue, oldValue) {
+      if (angular.equals(newValue, oldValue)) {
+        // Workaround for initial trigger
+        return;
+      }
+      dataStorage.storeHiddenGroups(newValue);
       // Get next page to make sure loading gets triggered
       classes.nextPage();
-    });
+    }, true);
     $scope.$watch('searchText', dataStorage.storeSearchText);
   }
 ]);
