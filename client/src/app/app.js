@@ -40,6 +40,13 @@ angular.module('app').controller('AppCtrl', [
     // Don't run when page is inactive
     $window.onblur = periodicTask.stop;
 
+    // Limit length of tables
+    $scope.tableLimit = 50;
+    $scope.tableLimitStep = 50;
+    $scope.tableShowMore = function() {
+      $scope.tableLimit = $scope.tableLimit + $scope.tableLimitStep;
+    };
+
     periodicTask.start();
 
     $scope.notification = notification;

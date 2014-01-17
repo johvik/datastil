@@ -36,8 +36,11 @@ angular.module('highscore').controller('HighscoreCtrl', [
         return;
       }
       dataStorage.storeHiddenGroups(newValue);
-      // Get next page to make sure loading gets triggered
-      scores.nextPage();
+
+      if ($scope.scoresFiltered.length <= $scope.tableLimit) {
+        // Get next page to make sure loading gets triggered
+        scores.nextPage();
+      }
     }, true);
     $scope.$watch('searchText', dataStorage.storeSearchText);
   }

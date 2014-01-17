@@ -36,8 +36,11 @@ angular.module('list').controller('ListCtrl', [
         return;
       }
       dataStorage.storeHiddenGroups(newValue);
-      // Get next page to make sure loading gets triggered
-      classes.nextPage();
+
+      if ($scope.classesFiltered.length <= $scope.tableLimit) {
+        // Get next page to make sure loading gets triggered
+        classes.nextPage();
+      }
     }, true);
     $scope.$watch('searchText', dataStorage.storeSearchText);
   }

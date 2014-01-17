@@ -3,11 +3,11 @@
 <form class="form">
   <div class="form-group">
     <label class="sr-only" for="searchText">Search:</label>
-    <input type="text" class="form-control" id="searchText" placeholder="Text search" ng-model="searchText" ng-change="scores.nextPage()">
+    <input type="text" class="form-control" id="searchText" placeholder="Text search" ng-model="searchText" ng-change="scoresFiltered.length <= tableLimit && scores.nextPage()">
   </div>
 </form>
 <div class="table-responsive">
-  <table class="table table-hover" infinite-scroll="scores.nextPage()" infinite-scroll-disabled="!scores.hasNext || scores.pageLoading" infinite-scroll-distance="1">
+  <table class="table table-hover" infinite-scroll="scores.nextPage()" infinite-scroll-disabled="!scores.hasNext || scores.pageLoading || scoresFiltered.length > tableLimit" infinite-scroll-distance="1">
     <thead>
       <tr>
         <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">#</th>
@@ -18,7 +18,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr class="link-table-row" ng-repeat="score in scoresFiltered = (scores.data | notInArray:hiddenGroups:'groupid' | classFilter:searchText)" ng-click="scoreInfo(score)">
+      <tr class="link-table-row" ng-repeat="score in scoresFiltered = (scores.data | notInArray:hiddenGroups:'groupid' | classFilter:searchText) | limitTo:tableLimit" ng-click="scoreInfo(score)">
         <td>
           <a href="/highscore/{{score.classid}}">{{$index + 1}}</a>
         </td>
@@ -41,4 +41,5 @@
     </tbody>
   </table>
 </div>
+<button type="button" class="btn btn-default center-block" ng-show="!scores.pageLoading && scoresFiltered.length > tableLimit" ng-click="tableShowMore()">Show more</button>
 <div ng-show="scores.pageLoading">Loading data...</div>
