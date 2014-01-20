@@ -230,7 +230,8 @@ module.exports = function(grunt) {
         dest: '<%= distdir %>/index.html',
         options: {
           context: {
-            name: '<%= pkg.name %>'
+            name: '<%= pkg.name %>',
+            homepage: '<%= pkg.homepage %>'
           }
         }
       }
