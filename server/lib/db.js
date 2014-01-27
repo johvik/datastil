@@ -206,10 +206,10 @@ module.exports = function(config) {
           });
       });
     },
-    getClassesForUpdate: function(callback) {
-      // Add 10 min margin and get all classes that has occured
+    getClassesForUpdate: function(margin, callback) {
+      // Add a margin and get all classes that has occured
       // callback(err, res)
-      var time = new Date().getTime() - 600000;
+      var time = new Date().getTime() - margin;
       poolQuery('SELECT id, day, time, startTime, groupid, aktivitet, lokal, resurs, installt FROM classes WHERE startTime < ' +
         pool.escape(time) + ' ORDER BY startTime ASC', callback);
     },

@@ -2,6 +2,8 @@ var request = require('superagent');
 var async = require('async');
 
 var dataMaxAge = 86400000 * 10; // 10 days in ms
+var dataEndMargin = 60000 * 4; // minutes in ms
+var scoreUpdateMargin = 60000 * 10; // minutes in ms
 
 module.exports = function(db) {
   function saveData(data, callback) {
@@ -21,7 +23,7 @@ module.exports = function(db) {
       'installt' in data && !isNaN(bokningsbara) && !isNaN(waitinglistsize) && !isNaN(totalt)) {
       var currentTime = new Date().getTime();
       // Make sure it hasn't occured yet
-      if (startTime < currentTime) {
+      if ((startTime + dataEndMargin) < currentTime) {
         return callback(null);
       }
       // Do not store data if it is more than maxAge
@@ -136,7 +138,7 @@ module.exports = function(db) {
     },
     updateScores: function(cb) {
       // cb(err)
-      db.getClassesForUpdate(function(err, result) {
+      db.getClassesForUpdate(scoreUpdateMargin, function(err, result) {
         if (err) {
           return cb(err);
         }
@@ -150,7 +152,7 @@ module.exports = function(db) {
               return db.deleteClass(item.id, true, callback);
             }
             var start = item.startTime - dataMaxAge;
-            var end = item.startTime;
+            var end = item.startTime + dataEndMargin;
             while (result.length > 0 && result[0].time < start) {
               // Remove elemets before start
               result.shift();
