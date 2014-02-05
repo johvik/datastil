@@ -29,10 +29,10 @@ describe('Test init', function() {
             array.push(item[Object.keys(item)[0]]);
           }
           len.should.equal(4);
-          array.should.contain('class_data');
-          array.should.contain('classes');
-          array.should.contain('groups');
-          array.should.contain('scores');
+          array.should.containEql('class_data');
+          array.should.containEql('classes');
+          array.should.containEql('groups');
+          array.should.containEql('scores');
           connection.end(done);
         });
       });
