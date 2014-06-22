@@ -2,7 +2,7 @@ angular.module('app', [
   'ngRoute',
   'list',
   'info',
-  'highscore',
+  'history',
   'score-info',
   'filters.capitalize',
   'services.breadcrumbs',

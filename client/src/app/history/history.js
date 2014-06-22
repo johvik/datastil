@@ -1,4 +1,4 @@
-angular.module('highscore', [
+angular.module('history', [
   'services.scores',
   'services.data-storage',
   'directives.group-filter',
@@ -7,14 +7,14 @@ angular.module('highscore', [
   'infinite-scroll'
 ], ['$routeProvider',
   function($routeProvider) {
-    $routeProvider.when('/highscore', {
-      templateUrl: 'highscore/highscore.tpl.html',
-      controller: 'HighscoreCtrl'
+    $routeProvider.when('/history', {
+      templateUrl: 'history/history.tpl.html',
+      controller: 'HistoryCtrl'
     });
   }
 ]);
 
-angular.module('highscore').controller('HighscoreCtrl', [
+angular.module('history').controller('HistoryCtrl', [
   '$scope',
   '$location',
   'scores',

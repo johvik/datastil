@@ -1,8 +1,8 @@
 // More or less copy-paste of list/info
 angular.module('score-info', ['services.classdata', 'services.chart-data', 'directives.line-chart'], ['$routeProvider',
   function($routeProvider) {
-    $routeProvider.when('/highscore/:id', {
-      templateUrl: 'highscore/info/info.tpl.html',
+    $routeProvider.when('/history/:id', {
+      templateUrl: 'history/info/info.tpl.html',
       controller: 'ScoreInfoCtrl',
       resolve: {
         data: ['$route', 'ClassData',

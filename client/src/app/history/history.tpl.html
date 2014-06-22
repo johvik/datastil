@@ -1,4 +1,4 @@
-<h1>Highscore</h1>
+<h1>History</h1>
 <group-filter filter-var="hiddenGroups"></group-filter>
 <form class="form">
   <div class="form-group">
@@ -20,19 +20,19 @@
     <tbody>
       <tr class="link-table-row" ng-repeat="score in scoresFiltered = (scores.data | notInArray:hiddenGroups:'groupid' | classFilter:searchText) | limitTo:tableLimit" ng-click="scoreInfo(score)">
         <td>
-          <a href="/highscore/{{score.classid}}">{{$index + 1}}</a>
+          <a href="/history/{{score.classid}}">{{$index + 1}}</a>
         </td>
         <td>
-          <a href="/highscore/{{score.classid}}">{{score.aktivitet}}</a>
+          <a href="/history/{{score.classid}}">{{score.aktivitet}}</a>
         </td>
         <td>
-          <a href="/highscore/{{score.classid}}">{{score.resurs}}<span ng-if="!score.resurs">&nbsp;</span></a>
+          <a href="/history/{{score.classid}}">{{score.resurs}}<span ng-if="!score.resurs">&nbsp;</span></a>
         </td>
         <td>
-          <a href="/highscore/{{score.classid}}">{{score.lokal}}</a>
+          <a href="/history/{{score.classid}}">{{score.lokal}}</a>
         </td>
         <td>
-          <a href="/highscore/{{score.classid}}">{{score.startTime | date:'HH:mm, EEEE, MMM d'}}</a>
+          <a href="/history/{{score.classid}}">{{score.startTime | date:'HH:mm, EEEE, MMM d'}}</a>
         </td>
       </tr>
       <tr ng-show="!scoresFiltered.length">
