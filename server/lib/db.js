@@ -19,7 +19,9 @@ module.exports = function(config) {
     // callback(err, res)
     pool.getConnection(function(err, connection) {
       if (err) {
-        connection.release();
+        if (connection) {
+          connection.release();
+        }
         return callback(err);
       }
       connection.query(query, function(err, res) {

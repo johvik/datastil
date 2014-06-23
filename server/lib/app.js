@@ -1,5 +1,9 @@
 var cronJob = require('cron').CronJob;
 var express = require('express');
+var compression = require('compression');
+var favicon = require('serve-favicon');
+var serveStatic = require('serve-static');
+var morgan = require('morgan');
 var path = require('path');
 var app = express();
 var TEST_ENV = process.env.NODE_ENV === 'test';
@@ -34,22 +38,19 @@ var dist = path.join(__dirname, '..', '..', 'client', 'dist');
 var maxAge = 30 * 24 * 60 * 60 * 1000; // in ms
 
 // Set up middleware
-app.use(express.compress());
-app.use(express.favicon(path.join(dist, 'favicon.ico'), {
+app.use(compression());
+app.use(favicon(path.join(dist, 'favicon.ico'), {
   maxAge: maxAge
 }));
-app.use('/static', express.static(dist, {
+app.use('/static', serveStatic(dist, {
   maxAge: maxAge
 }));
 app.use('/static', function(req, res, next) {
   res.send(404); // If we get here then the request for a static file is invalid
 });
-app.use(express.bodyParser());
-app.use(express.methodOverride());
 if (!TEST_ENV) {
-  app.use(express.logger('short'));
+  app.use(morgan('short'));
 }
-app.use(app.router);
 
 // Set up routes
 app.get('/groups', function(req, res) {

@@ -16,7 +16,7 @@ describe('Request index.html', function() {
   it('should get root', function(done) {
     request.get(utils.address + '/').end(function(err, res) {
       should.not.exist(err);
-      res.should.have.status(200);
+      res.should.have.property('statusCode', 200);
       res.text.should.equal(indexContent);
       done();
     });
@@ -25,7 +25,7 @@ describe('Request index.html', function() {
   it('should get index.html', function(done) {
     request.get(utils.address + '/somerandompath').end(function(err, res) {
       should.not.exist(err);
-      res.should.have.status(200);
+      res.should.have.property('statusCode', 200);
       res.text.should.equal(indexContent);
       done();
     });
@@ -34,7 +34,7 @@ describe('Request index.html', function() {
   it('should del index.html', function(done) {
     request.del(utils.address + '/some/random/path').end(function(err, res) {
       should.not.exist(err);
-      res.should.have.status(200);
+      res.should.have.property('statusCode', 200);
       res.text.should.equal(indexContent);
       done();
     });
@@ -45,7 +45,7 @@ describe('Request static', function() {
   it('should get datastil.js', function(done) {
     request.get(utils.address + '/static/datastil.js').buffer().end(function(err, res) {
       should.not.exist(err);
-      res.should.have.status(200);
+      res.should.have.property('statusCode', 200);
       res.text.should.equal(utils.getDistFileContent('datastil.js'));
       done();
     });
@@ -54,7 +54,7 @@ describe('Request static', function() {
   it('should get favicon', function(done) {
     request.get(utils.address + '/favicon.ico').buffer().end(function(err, res) {
       should.not.exist(err);
-      res.should.have.status(200);
+      res.should.have.property('statusCode', 200);
       res.text.should.equal(utils.getDistFileContent('favicon.ico'));
       done();
     });
@@ -68,7 +68,7 @@ describe('Request routes (empty)', function() {
   it('should get groups', function(done) {
     request.get(utils.address + '/groups').end(function(err, res) {
       should.not.exist(err);
-      res.should.have.status(200);
+      res.should.have.property('statusCode', 200);
       res.body.should.eql([]);
       done();
     });
@@ -77,7 +77,7 @@ describe('Request routes (empty)', function() {
   it('should get classes', function(done) {
     request.get(utils.address + '/classes/0').end(function(err, res) {
       should.not.exist(err);
-      res.should.have.status(200);
+      res.should.have.property('statusCode', 200);
       res.body.should.eql([]);
       done();
     });
@@ -86,7 +86,7 @@ describe('Request routes (empty)', function() {
   it('should not get class', function(done) {
     request.get(utils.address + '/class/0').end(function(err, res) {
       should.not.exist(err);
-      res.should.have.status(404);
+      res.should.have.property('statusCode', 404);
       done();
     });
   });
@@ -94,7 +94,7 @@ describe('Request routes (empty)', function() {
   it('should not get classinfo', function(done) {
     request.get(utils.address + '/class/0/info').end(function(err, res) {
       should.not.exist(err);
-      res.should.have.status(404);
+      res.should.have.property('statusCode', 404);
       done();
     });
   });
@@ -102,7 +102,7 @@ describe('Request routes (empty)', function() {
   it('should get scores', function(done) {
     request.get(utils.address + '/scores/0').end(function(err, res) {
       should.not.exist(err);
-      res.should.have.status(200);
+      res.should.have.property('statusCode', 200);
       res.body.should.eql([]);
       done();
     });
@@ -111,7 +111,7 @@ describe('Request routes (empty)', function() {
   it('should not get scoreinfo', function(done) {
     request.get(utils.address + '/score/0').end(function(err, res) {
       should.not.exist(err);
-      res.should.have.status(404);
+      res.should.have.property('statusCode', 404);
       done();
     });
   });
@@ -129,7 +129,7 @@ describe('Request routes', function() {
   it('should get groups', function(done) {
     request.get(utils.address + '/groups').end(function(err, res) {
       should.not.exist(err);
-      res.should.have.status(200);
+      res.should.have.property('statusCode', 200);
       res.body.should.eql(data.groups);
       done();
     });
@@ -137,7 +137,7 @@ describe('Request routes', function() {
   it('should get classes', function(done) {
     request.get(utils.address + '/classes/0').end(function(err, res) {
       should.not.exist(err);
-      res.should.have.status(200);
+      res.should.have.property('statusCode', 200);
       res.body.should.eql(data.classes);
       done();
     });
@@ -147,7 +147,7 @@ describe('Request routes', function() {
     var c = data.classes[0];
     request.get(utils.address + '/class/' + c.id).end(function(err, res) {
       should.not.exist(err);
-      res.should.have.status(200);
+      res.should.have.property('statusCode', 200);
       var d = data.class_data;
       // The response doesn't have classid
       for (var i = 0, j = d.length; i < j; i++) {
@@ -162,7 +162,7 @@ describe('Request routes', function() {
     var c = data.classes[0];
     request.get(utils.address + '/class/' + c.id + '/info').end(function(err, res) {
       should.not.exist(err);
-      res.should.have.status(200);
+      res.should.have.property('statusCode', 200);
       res.body.should.eql(c);
       done();
     });
@@ -171,7 +171,7 @@ describe('Request routes', function() {
   it('should get scores', function(done) {
     request.get(utils.address + '/scores/0').end(function(err, res) {
       should.not.exist(err);
-      res.should.have.status(200);
+      res.should.have.property('statusCode', 200);
       res.body.should.eql(data.scores);
       done();
     });
@@ -181,7 +181,7 @@ describe('Request routes', function() {
     var c = data.scores[0];
     request.get(utils.address + '/score/' + c.classid).end(function(err, res) {
       should.not.exist(err);
-      res.should.have.status(200);
+      res.should.have.property('statusCode', 200);
       res.body.should.eql(c);
       done();
     });
