@@ -22,7 +22,9 @@ var job1 = new cronJob('*/5 * * * *', function() {
       log('FetchData ' + new Date(), err);
     } else {
       data.updateScores(function(err) {
-        log('UpdateScores ' + new Date(), err);
+        if (err) {
+          log('UpdateScores ' + new Date(), err);
+        }
       });
     }
   });

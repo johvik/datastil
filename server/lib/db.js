@@ -89,19 +89,18 @@ module.exports = function(config) {
                     throw err;
                   }
                   connection.query('CREATE TABLE IF NOT EXISTS scores(' +
+                    'classid INT NOT NULL PRIMARY KEY,' +
                     'day INT NOT NULL,' +
                     'time CHAR(5) NOT NULL,' +
-                    'classid INT NOT NULL,' +
-                    'startTime BIGINT NOT NULL,' +
-                    'aktivitet VARCHAR(50) NOT NULL,' +
                     'groupid INT NOT NULL,' +
-                    'score INT NOT NULL,' +
+                    'startTime BIGINT NOT NULL,' +
                     'lediga INT NOT NULL,' +
                     'bokningsbara INT NOT NULL,' +
                     'totalt INT NOT NULL,' +
+                    'aktivitet VARCHAR(50) NOT NULL,' +
                     'lokal TEXT NOT NULL,' +
                     'resurs TEXT NOT NULL,' +
-                    'PRIMARY KEY (day, time, aktivitet))', function(err) {
+                    'score INT NOT NULL)', function(err) {
                       if (err) {
                         throw err;
                       }
@@ -135,7 +134,7 @@ module.exports = function(config) {
       poolQuery('SELECT score FROM scores WHERE day = ' +
         pool.escape(day) + ' AND time = ' +
         pool.escape(time) + ' AND aktivitet = ' +
-        pool.escape(aktivitet), function(err, res) {
+        pool.escape(aktivitet) + ' ORDER BY startTime DESC LIMIT 1', function(err, res) {
           if (err) {
             return callback(err);
           }
@@ -222,37 +221,11 @@ module.exports = function(config) {
           connection.release();
           return callback(err);
         }
-        connection.query('SELECT classid FROM scores WHERE day = ' +
-          pool.escape(data.day) + ' AND time = ' +
-          pool.escape(data.time) + ' AND aktivitet = ' +
-          pool.escape(data.aktivitet), function(err, res) {
-            if (err) {
-              connection.release();
-              return callback(err);
-            }
-            var escaped = pool.escape(data);
-            connection.query('INSERT INTO scores SET ' + escaped +
-              ' ON DUPLICATE KEY UPDATE ' + escaped, function(err) {
-                if (err) {
-                  connection.release();
-                  return callback(err);
-                }
-                var escaped = pool.escape(data);
-                if (res && res.length > 0) {
-                  // Remove old
-                  connection.query('DELETE FROM class_data WHERE ' +
-                    pool.escape({
-                      classid: res[0].classid
-                    }), function(err) {
-                      connection.release();
-                      return callback(err);
-                    });
-                } else {
-                  // Nothing to delete
-                  connection.release();
-                  return callback(null);
-                }
-              });
+        var escaped = pool.escape(data);
+        connection.query('INSERT INTO scores SET ' + escaped +
+          ' ON DUPLICATE KEY UPDATE ' + escaped, function(err) {
+            connection.release();
+            return callback(err);
           });
       });
 
