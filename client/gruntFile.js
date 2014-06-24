@@ -99,10 +99,10 @@ module.exports = function(grunt) {
     },
     karma: {
       unit: {
-        options: karmaConfig('test/config/unit.js')
+        options: karmaConfig('test/config/karma.conf.js')
       },
       watch: {
-        options: karmaConfig('test/config/unit.js', {
+        options: karmaConfig('test/config/karma.conf.js', {
           singleRun: false,
           autoWatch: true
         })
