@@ -3,6 +3,7 @@ angular.module('directives.line-chart', [])
 .directive('lineChart', [
 
   function() {
+    nv.dev = false; // hack to disable nv printouts...
     return {
       restrict: 'E',
       scope: {

@@ -135,7 +135,7 @@ module.exports = function(grunt) {
         dest: '<%= distdir %>/<%= pkg.name %>.js'
       },
       angular: {
-        src: ['vendor/angular/angular.js', 'vendor/angular/*.js'],
+        src: ['bower_components/angular/angular.js', 'bower_components/angular-*/*.js'],
         dest: '<%= distdir %>/angular.js'
       },
       angularlibs: {
@@ -143,15 +143,15 @@ module.exports = function(grunt) {
         dest: '<%= distdir %>/angular-libs.js'
       },
       bootstrap: {
-        src: ['vendor/bootstrap/*.js'],
+        src: ['bower_components/bootstrap/dist/js/bootstrap.js'],
         dest: '<%= distdir %>/bootstrap.js'
       },
       nvd3: {
-        src: ['vendor/nvd3/d3.v3.js', 'vendor/nvd3/nv.d3.js'],
+        src: ['bower_components/d3/d3.js', 'bower_components/nvd3/nv.d3.js'],
         dest: '<%= distdir %>/nvd3.js'
       },
       jquery: {
-        src: ['vendor/jquery/*.js'],
+        src: ['bower_components/jquery/dist/jquery.js'],
         dest: '<%= distdir %>/jquery.js'
       }
     },
@@ -176,7 +176,7 @@ module.exports = function(grunt) {
     recess: {
       build: {
         files: {
-          '<%= distdir %>/<%= pkg.name %>.css': ['vendor/bootstrap/bootstrap.css', 'vendor/bootstrap/bootstrap-theme.css', 'vendor/nvd3/nv.d3.css', '<%= src.css %>']
+          '<%= distdir %>/<%= pkg.name %>.css': ['bower_components/bootstrap/dist/css/bootstrap.css', 'bower_components/bootstrap/dist/css/bootstrap-theme.css', 'bower_components/nvd3/nv.d3.css', '<%= src.css %>']
         },
         options: {
           compile: true
@@ -184,7 +184,7 @@ module.exports = function(grunt) {
       },
       min: {
         files: {
-          '<%= distdir %>/<%= pkg.name %>.css': ['vendor/nvd3/nv.d3.css', '<%= src.css %>']
+          '<%= distdir %>/<%= pkg.name %>.css': ['bower_components/nvd3/nv.d3.css', '<%= src.css %>']
         },
         options: {
           compress: true

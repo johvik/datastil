@@ -5,12 +5,12 @@ basePath = '../..';
 files = [
   JASMINE,
   JASMINE_ADAPTER,
-  'vendor/jquery/jquery.js',
-  'vendor/angular/angular.js',
-  'vendor/angular/*.js',
-  'test/vendor/angular/angular-mocks.js',
-  'vendor/bootstrap/*.js',
-  'vendor/nvd3/*.js',
+  'bower_components/jquery/dist/jquery.js',
+  'bower_components/angular/angular.js',
+  'bower_components/angular-*/*.js',
+  'bower_components/bootstrap/dist/js/bootstrap.js',
+  'bower_components/d3/d3.js',
+  'bower_components/nvd3/nv.d3.js',
   'src/**/*.js',
   'test/unit/**/*.spec.js'
 ];

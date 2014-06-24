@@ -1,0 +1,23 @@
+{
+  "name": "datastil",
+  "version": "0.0.1",
+  "authors": [
+    "johvik"
+  ],
+  "private": true,
+  "dependencies": {
+    "angular": "1.2.x",
+    "angular-resource": "1.2.x",
+    "angular-route": "1.2.x",
+    "bootstrap": "3.1.x",
+    "jquery": "1.11.x",
+    "d3": "~3.1.x",
+    "nvd3": "1.1.x"
+  },
+  "devDependencies": {
+    "angular-mocks": "1.2.x"
+  },
+  "resolutions": {
+    "d3": "~3.1.x"
+  }
+}
