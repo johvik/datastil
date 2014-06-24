@@ -11,13 +11,13 @@
     "angular-route": "1.2.x",
     "bootstrap": "3.1.x",
     "jquery": "1.11.x",
-    "d3": "~3.1.x",
-    "nvd3": "1.1.x"
+    "d3": "3.1.5",
+    "nvd3": "1.1.15-beta"
   },
   "devDependencies": {
     "angular-mocks": "1.2.x"
   },
   "resolutions": {
-    "d3": "~3.1.x"
+    "d3": "3.1.5"
   }
 }
