@@ -21,7 +21,7 @@ angular.module('services.chart-data').factory('chartData', [
           (i + 1 < j && data[i + 1].waitinglistsize !== 0)) {
           waitinglist.push({
             x: di.time,
-            y: di.waitinglistsize
+            y: -di.waitinglistsize
           });
         }
         prev = di.waitinglistsize;
