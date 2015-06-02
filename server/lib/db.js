@@ -3,8 +3,8 @@ var mysql = require('mysql');
 module.exports = function(config) {
   // Check config file
   if (!('USER' in config &&
-    'PASSWORD' in config &&
-    'DB' in config)) {
+      'PASSWORD' in config &&
+      'DB' in config)) {
     throw 'Missing parameters in config file';
   }
 
@@ -56,7 +56,8 @@ module.exports = function(config) {
       }
       connection.query('CREATE TABLE IF NOT EXISTS groups(' +
         'id INT NOT NULL PRIMARY KEY,' +
-        'name TEXT NOT NULL)', function(err) {
+        'name TEXT NOT NULL)',
+        function(err) {
           if (err) {
             throw err;
           }
@@ -74,7 +75,8 @@ module.exports = function(config) {
             'resurs TEXT NOT NULL,' +
             'score INT NOT NULL,' +
             'installt BOOL NOT NULL,' +
-            'ny BOOL NOT NULL)', function(err) {
+            'ny BOOL NOT NULL)',
+            function(err) {
               if (err) {
                 throw err;
               }
@@ -86,7 +88,8 @@ module.exports = function(config) {
                 'bokningsbara INT NOT NULL,' +
                 'waitinglistsize INT NOT NULL,' +
                 'totalt INT NOT NULL,' +
-                'INDEX(classid))', function(err) {
+                'INDEX(classid))',
+                function(err) {
                   if (err) {
                     throw err;
                   }
@@ -102,7 +105,8 @@ module.exports = function(config) {
                     'aktivitet VARCHAR(50) NOT NULL,' +
                     'lokal TEXT NOT NULL,' +
                     'resurs TEXT NOT NULL,' +
-                    'score INT NOT NULL)', function(err) {
+                    'score INT NOT NULL)',
+                    function(err) {
                       if (err) {
                         throw err;
                       }
@@ -136,7 +140,8 @@ module.exports = function(config) {
       poolQuery('SELECT score FROM scores WHERE day = ' +
         pool.escape(day) + ' AND time = ' +
         pool.escape(time) + ' AND aktivitet = ' +
-        pool.escape(aktivitet) + ' ORDER BY startTime DESC LIMIT 1', function(err, res) {
+        pool.escape(aktivitet) + ' ORDER BY startTime DESC LIMIT 1',
+        function(err, res) {
           if (err) {
             return callback(err);
           }
@@ -175,7 +180,8 @@ module.exports = function(config) {
         // Get last two data points
         connection.query('SELECT id, classid, time, lediga, bokningsbara, waitinglistsize, totalt FROM class_data WHERE classid = ' +
           pool.escape(data.classid) +
-          ' ORDER BY time DESC LIMIT 2', function(err, res) {
+          ' ORDER BY time DESC LIMIT 2',
+          function(err, res) {
             if (err) {
               connection.release();
               return callback(err);
@@ -186,21 +192,22 @@ module.exports = function(config) {
               return callback('New point before old point');
             }
             if (res.length === 2 && (
-              res[0].lediga === data.lediga &&
-              res[0].bokningsbara === data.bokningsbara &&
-              res[0].waitinglistsize === data.waitinglistsize &&
-              res[0].totalt === data.totalt &&
-              res[1].lediga === data.lediga &&
-              res[1].bokningsbara === data.bokningsbara &&
-              res[1].waitinglistsize === data.waitinglistsize &&
-              res[1].totalt === data.totalt)) {
+                res[0].lediga === data.lediga &&
+                res[0].bokningsbara === data.bokningsbara &&
+                res[0].waitinglistsize === data.waitinglistsize &&
+                res[0].totalt === data.totalt &&
+                res[1].lediga === data.lediga &&
+                res[1].bokningsbara === data.bokningsbara &&
+                res[1].waitinglistsize === data.waitinglistsize &&
+                res[1].totalt === data.totalt)) {
               // Middle point can be removed
               data.id = res[0].id; // Overwrite latest point
             }
             // Save the data
             var escaped = pool.escape(data);
             connection.query('INSERT INTO class_data SET ' + escaped +
-              ' ON DUPLICATE KEY UPDATE ' + escaped, function(err) {
+              ' ON DUPLICATE KEY UPDATE ' + escaped,
+              function(err) {
                 connection.release();
                 return callback(err);
               });
@@ -225,7 +232,8 @@ module.exports = function(config) {
         }
         var escaped = pool.escape(data);
         connection.query('INSERT INTO scores SET ' + escaped +
-          ' ON DUPLICATE KEY UPDATE ' + escaped, function(err) {
+          ' ON DUPLICATE KEY UPDATE ' + escaped,
+          function(err) {
             connection.release();
             return callback(err);
           });
@@ -289,7 +297,8 @@ module.exports = function(config) {
     },
     getClassInfo: function(id, callback) {
       poolQuery('SELECT id, day, time, groupid, startTime, lediga, bokningsbara, totalt, aktivitet, lokal, resurs, score, installt, ny FROM classes WHERE id = ' +
-        pool.escape(id), function(err, res) {
+        pool.escape(id),
+        function(err, res) {
           callback(err, res[0]);
         });
     },
@@ -300,7 +309,8 @@ module.exports = function(config) {
     },
     getScoreInfo: function(id, callback) {
       poolQuery('SELECT classid, day, time, groupid, startTime, lediga, bokningsbara, totalt, aktivitet, lokal, resurs, score FROM scores WHERE classid = ' +
-        pool.escape(id), function(err, res) {
+        pool.escape(id),
+        function(err, res) {
           callback(err, res[0]);
         });
     }

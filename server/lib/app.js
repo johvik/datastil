@@ -46,7 +46,7 @@ app.use('/static', serveStatic(dist, {
   maxAge: maxAge
 }));
 app.use('/static', function(req, res, next) {
-  res.send(404); // If we get here then the request for a static file is invalid
+  res.sendStatus(404); // If we get here then the request for a static file is invalid
 });
 if (!TEST_ENV) {
   app.use(morgan('short'));
@@ -56,7 +56,7 @@ if (!TEST_ENV) {
 app.get('/groups', function(req, res) {
   db.getGroups(function(err, result) {
     if (err) {
-      return res.send(500);
+      return res.sendStatus(500);
     }
     res.setHeader('Cache-Control', 'no-cache');
     res.json(result);
@@ -66,7 +66,7 @@ app.get('/groups', function(req, res) {
 app.get('/classes/:id', function(req, res) {
   var id = parseInt(req.params.id, 10);
   if (isNaN(id) || id < 0) {
-    return res.send(400);
+    return res.sendStatus(400);
   }
   var filter = [];
   if ('filter' in req.query) {
@@ -76,7 +76,7 @@ app.get('/classes/:id', function(req, res) {
     for (var i = 0, j = split.length; i < j; i++) {
       var num = parseInt(split[i], 10);
       if (isNaN(num)) {
-        return res.send(400);
+        return res.sendStatus(400);
       }
       filter.push(num);
     }
@@ -86,13 +86,13 @@ app.get('/classes/:id', function(req, res) {
     var n = parseInt(req.query.size, 10);
     if (isNaN(n) || n <= 0 || n >= 2147483647) {
       // Not a number or out of range
-      return res.send(400);
+      return res.sendStatus(400);
     }
     pageSize = n;
   }
   db.getClasses(id, filter, pageSize, function(err, result) {
     if (err) {
-      return res.send(500);
+      return res.sendStatus(500);
     }
     res.setHeader('Cache-Control', 'no-cache');
     res.json(result);
@@ -102,13 +102,13 @@ app.get('/classes/:id', function(req, res) {
 app.get('/class/:id', function(req, res) {
   var id = parseInt(req.params.id, 10);
   if (isNaN(id)) {
-    return res.send(400);
+    return res.sendStatus(400);
   }
   db.getClassData(id, function(err, result) {
     if (err) {
-      return res.send(500);
+      return res.sendStatus(500);
     } else if (result.length === 0) {
-      return res.send(404);
+      return res.sendStatus(404);
     }
     res.setHeader('Cache-Control', 'no-cache');
     res.json(result);
@@ -118,13 +118,13 @@ app.get('/class/:id', function(req, res) {
 app.get('/class/:id/info', function(req, res) {
   var id = parseInt(req.params.id, 10);
   if (isNaN(id)) {
-    return res.send(400);
+    return res.sendStatus(400);
   }
   db.getClassInfo(id, function(err, result) {
     if (err) {
-      return res.send(500);
+      return res.sendStatus(500);
     } else if (!result) {
-      return res.send(404);
+      return res.sendStatus(404);
     }
     res.setHeader('Cache-Control', 'no-cache');
     res.json(result);
@@ -134,20 +134,20 @@ app.get('/class/:id/info', function(req, res) {
 app.get('/scores/:id', function(req, res) {
   var id = parseInt(req.params.id, 10);
   if (isNaN(id) || id < 0) {
-    return res.send(400);
+    return res.sendStatus(400);
   }
   var pageSize = 20;
   if ('size' in req.query) {
     var n = parseInt(req.query.size, 10);
     if (isNaN(n) || n <= 0 || n >= 2147483647) {
       // Not a number or out of range
-      return res.send(400);
+      return res.sendStatus(400);
     }
     pageSize = n;
   }
   db.getScores(id, pageSize, function(err, result) {
     if (err) {
-      return res.send(500);
+      return res.sendStatus(500);
     }
     res.setHeader('Cache-Control', 'no-cache');
     res.json(result);
@@ -157,13 +157,13 @@ app.get('/scores/:id', function(req, res) {
 app.get('/score/:id', function(req, res) {
   var id = parseInt(req.params.id, 10);
   if (isNaN(id)) {
-    return res.send(400);
+    return res.sendStatus(400);
   }
   db.getScoreInfo(id, function(err, result) {
     if (err) {
-      return res.send(500);
+      return res.sendStatus(500);
     } else if (!result) {
-      return res.send(404);
+      return res.sendStatus(404);
     }
     res.setHeader('Cache-Control', 'no-cache');
     res.json(result);
@@ -172,7 +172,7 @@ app.get('/score/:id', function(req, res) {
 
 app.all('/*', function(req, res) {
   // Just send the index.html for other files to support HTML5Mode
-  res.sendfile('index.html', {
+  res.sendFile('index.html', {
     maxAge: maxAge,
     root: dist
   });

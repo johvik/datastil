@@ -1,12 +1,14 @@
 .link-table-row td {
   padding: 0px !important;
 }
+
 .link-table-row td a {
   display: block;
   padding: 8px;
   text-decoration: none;
   color: black;
 }
+
 .link-table-row a {
   outline: none;
 }

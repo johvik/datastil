@@ -52,7 +52,7 @@ describe('Request static', function() {
   });
 
   it('should get favicon', function(done) {
-    request.get(utils.address + '/favicon.ico').buffer().end(function(err, res) {
+    request.get(utils.address + '/favicon.ico').parse(request.parse.text).buffer().end(function(err, res) {
       should.not.exist(err);
       res.should.have.property('statusCode', 200);
       res.text.should.equal(utils.getDistFileContent('favicon.ico'));
@@ -85,7 +85,6 @@ describe('Request routes (empty)', function() {
 
   it('should not get class', function(done) {
     request.get(utils.address + '/class/0').end(function(err, res) {
-      should.not.exist(err);
       res.should.have.property('statusCode', 404);
       done();
     });
@@ -93,7 +92,6 @@ describe('Request routes (empty)', function() {
 
   it('should not get classinfo', function(done) {
     request.get(utils.address + '/class/0/info').end(function(err, res) {
-      should.not.exist(err);
       res.should.have.property('statusCode', 404);
       done();
     });
@@ -110,7 +108,6 @@ describe('Request routes (empty)', function() {
 
   it('should not get scoreinfo', function(done) {
     request.get(utils.address + '/score/0').end(function(err, res) {
-      should.not.exist(err);
       res.should.have.property('statusCode', 404);
       done();
     });
